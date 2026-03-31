@@ -448,6 +448,7 @@ footer {
         type="password"
         placeholder="password"
         autocomplete="current-password"
+        lang="en"
         autofocus
       >
       <div class="pw-err" id="pw-err">비밀번호가 올바르지 않습니다</div>
@@ -712,7 +713,10 @@ footer {
     }
   });
 
-  pwInput.addEventListener('input', () => pwErr.classList.remove('show'));
+  pwInput.addEventListener('input', () => {
+    pwInput.value = pwInput.value.replace(/[^\x20-\x7E]/g, '');
+    pwErr.classList.remove('show');
+  });
 
   /* ── Nav scroll ─────────────────────────────────── */
   const nav    = document.getElementById('nav');
