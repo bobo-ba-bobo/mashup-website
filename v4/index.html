@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mashup Ventures — 206번의 첫 번째</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ── TOKENS ── */
+    :root {
+      --bg:        #0D1117;
+      --surface:   #161B22;
+      --surface-2: #1C2128;
+      --orange:    #FF5C00;
+      --orange-dim: rgba(255,92,0,0.15);
+      --text:      #E6EDF3;
+      --text-dim:  rgba(230,237,243,0.5);
+      --text-muted: rgba(230,237,243,0.3);
+      --border:    rgba(230,237,243,0.08);
+      --border-bright: rgba(230,237,243,0.15);
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Space Grotesk', 'Pretendard', sans-serif;
+      --pretendard: 'Pretendard', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── PASSWORD GATE ── */
+    #gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #gate.hidden { display: none; }
+
+    .gate-inner {
+      width: 100%; max-width: 360px; padding: 0 24px;
+      display: flex; flex-direction: column; gap: 24px;
+    }
+    .gate-logo {
+      font-family: var(--mono);
+      font-size: 11px; letter-spacing: 0.15em;
+      color: var(--text-dim); text-transform: uppercase;
+    }
+    .gate-label {
+      font-family: var(--mono);
+      font-size: 11px; letter-spacing: 0.1em;
+      color: var(--text-dim); text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .gate-input {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border-bright);
+      color: var(--text); font-family: var(--mono);
+      font-size: 14px; padding: 12px 16px;
+      outline: none; transition: border-color 0.2s;
+    }
+    .gate-input:focus { border-color: var(--orange); }
+    .gate-input.error { border-color: #FF4444; animation: shake 0.3s ease; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .gate-btn {
+      width: 100%; background: var(--orange);
+      border: none; color: #fff;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 14px; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .gate-btn:hover { opacity: 0.85; }
+
+    /* ── SESSION TIMER ── */
+    #session-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 36px;
+      font-family: var(--mono); font-size: 11px;
+      color: var(--text-dim); letter-spacing: 0.08em;
+      transform: translateY(-100%); transition: transform 0.3s;
+    }
+    #session-bar.visible { transform: translateY(0); }
+    #session-bar.warn { color: #FF4444; }
+    #session-indicator {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--orange); margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+    .session-left { display: flex; align-items: center; gap: 8px; }
+
+    /* ── NAV ── */
+    #nav {
+      position: fixed; top: 36px; left: 0; right: 0; z-index: 900;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 60px;
+      background: rgba(13,17,23,0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    #nav:not(.bar-visible) { top: 0; }
+    .nav-logo {
+      font-family: var(--mono); font-size: 13px;
+      font-weight: 500; letter-spacing: 0.05em;
+      color: var(--text); text-decoration: none;
+    }
+    .nav-logo span { color: var(--orange); }
+    .nav-links {
+      display: flex; align-items: center; gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      background: var(--orange); color: #fff;
+      border: none; padding: 8px 16px; cursor: pointer;
+      text-decoration: none; transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+    .lang-btn {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-dim); background: none;
+      border: 1px solid var(--border-bright);
+      padding: 4px 10px; cursor: pointer;
+      transition: all 0.2s; margin-left: 8px;
+    }
+    .lang-btn:hover { color: var(--text); border-color: var(--orange); }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      overflow: hidden; border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      padding: 12px 0;
+    }
+    .marquee-track {
+      display: flex; gap: 48px;
+      animation: marquee 28s linear infinite;
+      white-space: nowrap; width: max-content;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .marquee-item {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-dim); display: flex; align-items: center; gap: 16px;
+    }
+    .marquee-dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--orange); flex-shrink: 0;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      padding: 160px 40px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: end;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 60% 40%, rgba(255,92,0,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-left { display: flex; flex-direction: column; gap: 32px; }
+    .hero-tag {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--orange);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .hero-tag::before {
+      content: '';
+      display: inline-block; width: 20px; height: 1px;
+      background: var(--orange);
+    }
+    .hero-headline {
+      font-family: var(--sans);
+      font-size: clamp(48px, 6vw, 80px);
+      font-weight: 700; line-height: 1.05;
+      letter-spacing: -0.03em; color: var(--text);
+    }
+    .hero-headline em {
+      font-style: normal; color: var(--orange);
+    }
+    .hero-sub {
+      font-family: var(--pretendard);
+      font-size: 16px; line-height: 1.7;
+      color: var(--text-dim); max-width: 480px;
+    }
+    .hero-cta-row {
+      display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: var(--orange); color: #fff;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; padding: 14px 28px; cursor: pointer;
+      text-decoration: none; transition: opacity 0.2s;
+      display: inline-block;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-ghost {
+      background: transparent; color: var(--text-dim);
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: 1px solid var(--border-bright); padding: 14px 28px;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.2s; display: inline-block;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--text-dim); }
+
+    /* HERO RIGHT — KPI GRID */
+    .hero-kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .kpi-cell {
+      background: var(--surface);
+      padding: 32px 28px;
+      display: flex; flex-direction: column; gap: 8px;
+      transition: background 0.2s;
+    }
+    .kpi-cell:hover { background: var(--surface-2); }
+    .kpi-num {
+      font-family: var(--sans); font-weight: 700;
+      font-size: clamp(36px, 4vw, 52px);
+      letter-spacing: -0.03em; color: var(--text);
+      line-height: 1;
+    }
+    .kpi-num span { color: var(--orange); }
+    .kpi-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .kpi-cell.highlight { background: var(--orange-dim); }
+    .kpi-cell.highlight .kpi-num { color: var(--orange); }
+
+    /* ── SECTION COMMON ── */
+    section { padding: 100px 40px; }
+    .section-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--orange); margin-bottom: 48px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border);
+    }
+    .section-title {
+      font-family: var(--sans); font-weight: 700;
+      font-size: clamp(32px, 4vw, 52px);
+      letter-spacing: -0.025em; line-height: 1.1;
+      color: var(--text);
+    }
+    .section-title-ko {
+      font-family: var(--pretendard); font-weight: 700;
+      font-size: clamp(28px, 3.5vw, 48px);
+      line-height: 1.2; color: var(--text);
+    }
+
+    /* ── PORTFOLIO SECTION ── */
+    .portfolio-section { background: var(--bg); }
+    .portfolio-header {
+      display: flex; align-items: flex-end;
+      justify-content: space-between; gap: 24px;
+      margin-bottom: 48px;
+    }
+    .portfolio-filter {
+      display: flex; gap: 4px;
+    }
+    .filter-btn {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      background: none; border: 1px solid var(--border);
+      color: var(--text-dim); padding: 6px 12px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--orange); border-color: var(--orange);
+      color: #fff;
+    }
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .port-card {
+      background: var(--surface); padding: 24px;
+      display: flex; flex-direction: column; gap: 12px;
+      transition: background 0.2s; cursor: default;
+      position: relative; overflow: hidden;
+    }
+    .port-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--orange-dim);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .port-card:hover { background: var(--surface-2); }
+    .port-card:hover::after { opacity: 1; }
+    .port-year {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.12em; color: var(--text-muted);
+    }
+    .port-name {
+      font-family: var(--sans); font-weight: 600;
+      font-size: 15px; color: var(--text); line-height: 1.3;
+    }
+    .port-sector {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-dim);
+      background: var(--surface-2); padding: 3px 8px;
+      border: 1px solid var(--border); display: inline-block;
+      width: fit-content;
+    }
+    .port-badge {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--orange);
+      background: var(--orange-dim); padding: 3px 8px;
+      border: 1px solid rgba(255,92,0,0.3);
+      display: inline-block; width: fit-content;
+    }
+
+    /* ── THESIS SECTION ── */
+    .thesis-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .thesis-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border);
+      margin-top: 48px;
+    }
+    .thesis-card {
+      background: var(--bg); padding: 40px 32px;
+      transition: background 0.2s;
+    }
+    .thesis-card:hover { background: var(--surface-2); }
+    .thesis-num {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.15em; color: var(--orange);
+      margin-bottom: 24px;
+    }
+    .thesis-title {
+      font-family: var(--pretendard); font-weight: 700;
+      font-size: 20px; line-height: 1.4;
+      color: var(--text); margin-bottom: 16px;
+    }
+    .thesis-body {
+      font-family: var(--pretendard); font-size: 14px;
+      line-height: 1.7; color: var(--text-dim);
+    }
+
+    /* ── TIMELINE / TRACK RECORD ── */
+    .track-section { background: var(--bg); }
+    .track-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 1fr;
+      gap: 0; border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .track-row:first-child { border-top: 1px solid var(--border); }
+    .track-row:hover { background: var(--surface); }
+    .track-cell {
+      padding: 20px 24px;
+      border-right: 1px solid var(--border);
+      display: flex; align-items: center;
+    }
+    .track-cell:last-child { border-right: none; }
+    .track-year {
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.1em; color: var(--orange);
+    }
+    .track-name {
+      font-family: var(--sans); font-weight: 600;
+      font-size: 15px; color: var(--text);
+    }
+    .track-detail {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.06em; color: var(--text-dim);
+    }
+    .exit-tag {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--orange); background: var(--orange-dim);
+      border: 1px solid rgba(255,92,0,0.3);
+      padding: 3px 8px; margin-left: 12px;
+    }
+
+    /* ── NETWORK SECTION ── */
+    .network-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+    .network-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px; margin-top: 64px;
+    }
+    .network-left {}
+    .network-right {}
+    .network-stat {
+      font-family: var(--sans); font-weight: 700;
+      font-size: clamp(56px, 7vw, 96px);
+      letter-spacing: -0.04em; line-height: 0.9;
+      color: var(--text);
+    }
+    .network-stat span { color: var(--orange); }
+    .network-desc {
+      font-family: var(--pretendard); font-size: 16px;
+      line-height: 1.7; color: var(--text-dim);
+      margin-top: 24px;
+    }
+    .mentor-list {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 32px;
+    }
+    .mentor-item {
+      background: var(--bg); padding: 16px 20px;
+      display: flex; flex-direction: column; gap: 4px;
+      transition: background 0.2s;
+    }
+    .mentor-item:hover { background: var(--surface-2); }
+    .mentor-name {
+      font-family: var(--sans); font-weight: 600;
+      font-size: 14px; color: var(--text);
+    }
+    .mentor-role {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.08em; color: var(--text-dim);
+    }
+
+    /* ── QUOTE SECTION ── */
+    .quote-section {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .quote-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 48px;
+    }
+    .quote-card {
+      background: var(--surface); padding: 40px 36px;
+      display: flex; flex-direction: column; gap: 24px;
+      transition: background 0.2s;
+    }
+    .quote-card:hover { background: var(--surface-2); }
+    .quote-mark {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.1em; color: var(--orange);
+    }
+    .quote-text {
+      font-family: var(--pretendard); font-size: 17px;
+      line-height: 1.7; color: var(--text);
+    }
+    .quote-author {
+      display: flex; flex-direction: column; gap: 4px;
+      margin-top: auto;
+    }
+    .quote-name {
+      font-family: var(--sans); font-weight: 600;
+      font-size: 14px; color: var(--text);
+    }
+    .quote-company {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.08em; color: var(--orange);
+    }
+
+    /* ── CTA SECTION ── */
+    .cta-section {
+      background: var(--orange);
+      padding: 120px 40px;
+      text-align: center;
+    }
+    .cta-tag {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(255,255,255,0.6); margin-bottom: 32px;
+    }
+    .cta-headline {
+      font-family: var(--sans); font-weight: 700;
+      font-size: clamp(40px, 5vw, 72px);
+      letter-spacing: -0.03em; line-height: 1.05;
+      color: #fff; margin-bottom: 16px;
+    }
+    .cta-sub {
+      font-family: var(--pretendard); font-size: 18px;
+      color: rgba(255,255,255,0.75); margin-bottom: 48px;
+    }
+    .cta-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: #fff; color: var(--orange);
+      font-family: var(--mono); font-size: 13px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; padding: 18px 40px; cursor: pointer;
+      text-decoration: none; transition: opacity 0.2s;
+      font-weight: 600;
+    }
+    .cta-btn:hover { opacity: 0.9; }
+    .cta-arrow { font-size: 16px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 60px 40px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px; margin-bottom: 48px;
+    }
+    .footer-brand-name {
+      font-family: var(--mono); font-size: 13px;
+      font-weight: 600; letter-spacing: 0.05em;
+      color: var(--text); margin-bottom: 12px;
+    }
+    .footer-brand-name span { color: var(--orange); }
+    .footer-desc {
+      font-family: var(--pretendard); font-size: 13px;
+      line-height: 1.7; color: var(--text-dim);
+    }
+    .footer-col-title {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 16px;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a {
+      font-family: var(--pretendard); font-size: 13px;
+      color: var(--text-dim); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid var(--border); padding-top: 24px;
+    }
+    .footer-copy {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.06em; color: var(--text-muted);
+    }
+    .footer-meta {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.06em; color: var(--text-muted);
+    }
+
+    /* ── SCROLL FADE ── */
+    .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-delay-1 { transition-delay: 0.1s; }
+    .fade-delay-2 { transition-delay: 0.2s; }
+    .fade-delay-3 { transition-delay: 0.3s; }
+    .fade-delay-4 { transition-delay: 0.4s; }
+
+    /* ── LANG TOGGLE ── */
+    .ko { display: block; }
+    .en { display: none; }
+    body.lang-en .ko { display: none; }
+    body.lang-en .en { display: block; }
+    span.ko, span.en { display: inline; }
+    body.lang-en span.ko { display: none; }
+    body.lang-en span.en { display: inline; }
+  </style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="gate-inner">
+    <div class="gate-logo">Mashup Ventures — Internal Preview</div>
+    <div>
+      <div class="gate-label">Access Code</div>
+      <input type="password" id="gate-input" class="gate-input" placeholder="enter access code" />
+    </div>
+    <button class="gate-btn" onclick="checkPassword()">Enter →</button>
+  </div>
+</div>
+
+<!-- SESSION BAR -->
+<div id="session-bar">
+  <div class="session-left">
+    <div id="session-indicator"></div>
+    <span>Internal Preview — Direction C: Track Record</span>
+  </div>
+  <span id="session-timer">10:00</span>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="/" class="nav-logo">Mashup<span>.</span></a>
+  <ul class="nav-links">
+    <li><a href="#portfolio"><span class="ko">포트폴리오</span><span class="en">Portfolio</span></a></li>
+    <li><a href="#thesis"><span class="ko">투자 철학</span><span class="en">Thesis</span></a></li>
+    <li><a href="#network"><span class="ko">네트워크</span><span class="en">Network</span></a></li>
+    <li><a href="#track"><span class="ko">실적</span><span class="en">Track</span></a></li>
+  </ul>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button class="lang-btn" id="lang-toggle" onclick="toggleLang()">EN</button>
+    <a href="#contact" class="nav-cta"><span class="ko">피칭 신청</span><span class="en">Pitch Us</span></a>
+  </div>
+</nav>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap" style="margin-top:96px;">
+  <div class="marquee-track">
+    <div class="marquee-item"><div class="marquee-dot"></div>206개사 투자</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>11.3조원 시총</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>12번의 엑싯</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>2013년 설립</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>50인 네트워크</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Series A 이전</div>
+    <!-- duplicate for seamless loop -->
+    <div class="marquee-item"><div class="marquee-dot"></div>206개사 투자</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>11.3조원 시총</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>12번의 엑싯</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>2013년 설립</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>50인 네트워크</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Series A 이전</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag fade-in">
+      <span class="ko">2013 — 현재</span>
+      <span class="en">2013 — Present</span>
+    </div>
+    <h1 class="hero-headline fade-in fade-delay-1">
+      <span class="ko"><em>206번</em>의<br/>첫 번째.</span>
+      <span class="en"><em>206</em> first<br/>bets.</span>
+    </h1>
+    <p class="hero-sub fade-in fade-delay-2">
+      <span class="ko">다음은 당신입니다. 매쉬업벤처스는 2013년부터<br/>가장 이른 단계에서, 숫자가 증명하는 방식으로 투자합니다.</span>
+      <span class="en">Yours could be next. Since 2013, Mashup Ventures<br/>has been the first to bet — and the numbers prove it.</span>
+    </p>
+    <div class="hero-cta-row fade-in fade-delay-3">
+      <a href="#contact" class="btn-primary">
+        <span class="ko">피칭 신청하기</span>
+        <span class="en">Pitch Us →</span>
+      </a>
+      <a href="#portfolio" class="btn-ghost">
+        <span class="ko">포트폴리오 보기</span>
+        <span class="en">View Portfolio</span>
+      </a>
+    </div>
+  </div>
+  <div class="hero-kpi-grid fade-in fade-delay-2">
+    <div class="kpi-cell highlight">
+      <div class="kpi-num" data-target="206">0</div>
+      <div class="kpi-label"><span class="ko">투자 기업</span><span class="en">Companies</span></div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-num">11.3<span>조</span></div>
+      <div class="kpi-label"><span class="ko">포트폴리오 시총</span><span class="en">Portfolio Value</span></div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-num" data-target="12">0</div>
+      <div class="kpi-label"><span class="ko">엑싯 (IPO·M&A)</span><span class="en">Exits (IPO·M&A)</span></div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-num">50<span>+</span></div>
+      <div class="kpi-label"><span class="ko">멘토 네트워크</span><span class="en">Mentor Network</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section class="portfolio-section" id="portfolio">
+  <div class="section-label fade-in"><span class="ko">포트폴리오</span><span class="en">Portfolio</span></div>
+  <div class="portfolio-header">
+    <h2 class="section-title fade-in">
+      <span class="ko">206개의 첫 번째 내기</span>
+      <span class="en">206 First Bets</span>
+    </h2>
+    <div class="portfolio-filter">
+      <button class="filter-btn active">All</button>
+      <button class="filter-btn">Fintech</button>
+      <button class="filter-btn">SaaS</button>
+      <button class="filter-btn">Consumer</button>
+      <button class="filter-btn">Exit</button>
+    </div>
+  </div>
+  <div class="portfolio-grid fade-in">
+    <div class="port-card">
+      <div class="port-year">2014</div>
+      <div class="port-name">직방</div>
+      <div class="port-sector">PropTech</div>
+      <div class="port-badge">EXIT — IPO</div>
+    </div>
+    <div class="port-card">
+      <div class="port-year">2015</div>
+      <div class="port-name">부릉 (메쉬코리아)</div>
+      <div class="port-sector">Logistics</div>
+      <div class="port-badge">EXIT — M&A</div>
+    </div>
+    <div class="port-card">
+      <div class="port-year">2017</div>
+      <div class="port-name">뤼이드</div>
+      <div class="port-sector">EdTech / AI</div>
+    </div>
+    <div class="port-card">
+      <div class="port-year">2018</div>
+      <div class="port-name">헬로네이처</div>
+      <div class="port-sector">Agri-Food</div>
+    </div>
+    <div class="port-card">
+      <div class="port-year">2019</div>
+      <div class="port-name">크리에이터링크</div>
+      <div class="port-sector">Creator Tools</div>
+    </div>
+    <div class="port-card">
+      <div class="port-year">2020</div>
+      <div class="port-name">인공지능팩토리</div>
+      <div class="port-sector">AI</div>
+    </div>
+    <div class="port-card">
+      <div class="port-year">2021</div>
+      <div class="port-name">레이니스트</div>
+      <div class="port-sector">Fintech</div>
+    </div>
+    <div class="port-card">
+      <div class="port-year">2022</div>
+      <div class="port-name">포트원</div>
+      <div class="port-sector">Fintech Infra</div>
+    </div>
+    <div class="port-card">
+      <div class="port-year">2022</div>
+      <div class="port-name">채널코퍼레이션</div>
+      <div class="port-sector">SaaS / CX</div>
+    </div>
+    <div class="port-card">
+      <div class="port-year">2023</div>
+      <div class="port-name">하이퍼커넥트</div>
+      <div class="port-sector">Consumer</div>
+      <div class="port-badge">EXIT — M&A</div>
+    </div>
+    <div class="port-card">
+      <div class="port-year">2024</div>
+      <div class="port-name">퍼플아이오</div>
+      <div class="port-sector">AI</div>
+    </div>
+    <div class="port-card" style="background:var(--surface-2);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <div style="font-family:var(--mono);font-size:12px;letter-spacing:0.1em;color:var(--orange);text-transform:uppercase;">
+        + 195 more →
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THESIS -->
+<section class="thesis-section" id="thesis">
+  <div class="section-label fade-in"><span class="ko">투자 철학</span><span class="en">Investment Thesis</span></div>
+  <h2 class="section-title fade-in">
+    <span class="ko">우리가 가장 먼저 내기를 거는 이유</span>
+    <span class="en">Why We Bet First</span>
+  </h2>
+  <div class="thesis-grid">
+    <div class="thesis-card fade-in">
+      <div class="thesis-num">01 ──</div>
+      <div class="thesis-title">
+        <span class="ko">시장 전에, 사람을 본다</span>
+        <span class="en">People Before Market</span>
+      </div>
+      <div class="thesis-body">
+        <span class="ko">사업계획서가 아닌 창업자의 실행력을 봅니다. 시장이 열리기 전에, 우리가 먼저 들어갑니다. 가장 이른 믿음이 가장 큰 수익이 됩니다.</span>
+        <span class="en">We look at the founder's execution, not the business plan. We enter before the market opens. The earliest conviction yields the greatest returns.</span>
+      </div>
+    </div>
+    <div class="thesis-card fade-in fade-delay-1">
+      <div class="thesis-num">02 ──</div>
+      <div class="thesis-title">
+        <span class="ko">네트워크가 차별점이다</span>
+        <span class="en">Network as Edge</span>
+      </div>
+      <div class="thesis-body">
+        <span class="ko">투자금과 함께 50인의 선배 창업자 네트워크를 드립니다. 커뮤니티는 마케팅이 아닌 실제 비즈니스 레버리지입니다.</span>
+        <span class="en">We bring 50+ founder mentors alongside capital. Community isn't marketing — it's real business leverage for your next stage.</span>
+      </div>
+    </div>
+    <div class="thesis-card fade-in fade-delay-2">
+      <div class="thesis-num">03 ──</div>
+      <div class="thesis-title">
+        <span class="ko">Series A 이전에 집중한다</span>
+        <span class="en">Pre-Series A Focus</span>
+      </div>
+      <div class="thesis-body">
+        <span class="ko">우리는 리드 투자자로, 창업 초기부터 함께합니다. 후행 투자가 아닌 진짜 파트너십을 약속합니다.</span>
+        <span class="en">We lead, from the very beginning. Not a follow-on investor — a real partner from day one through your Series A milestone.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRACK RECORD -->
+<section class="track-section" id="track">
+  <div class="section-label fade-in"><span class="ko">주요 엑싯</span><span class="en">Notable Exits</span></div>
+  <h2 class="section-title fade-in">
+    <span class="ko">12번의 증명</span>
+    <span class="en">12 Proven Exits</span>
+  </h2>
+  <div style="margin-top:48px;">
+    <div class="track-row fade-in">
+      <div class="track-cell"><span class="track-year">2014</span></div>
+      <div class="track-cell"><span class="track-name">직방</span><span class="exit-tag">IPO</span></div>
+      <div class="track-cell"><span class="track-detail">PropTech — 아파트 거래 플랫폼</span></div>
+    </div>
+    <div class="track-row fade-in fade-delay-1">
+      <div class="track-cell"><span class="track-year">2015</span></div>
+      <div class="track-cell"><span class="track-name">부릉 (메쉬코리아)</span><span class="exit-tag">M&A</span></div>
+      <div class="track-cell"><span class="track-detail">Logistics — 퀵커머스 물류 네트워크</span></div>
+    </div>
+    <div class="track-row fade-in fade-delay-2">
+      <div class="track-cell"><span class="track-year">2016</span></div>
+      <div class="track-cell"><span class="track-name">하이퍼커넥트</span><span class="exit-tag">M&A</span></div>
+      <div class="track-cell"><span class="track-detail">Consumer — 글로벌 소셜 앱 (매각: Match Group)</span></div>
+    </div>
+    <div class="track-row fade-in">
+      <div class="track-cell"><span class="track-year">2018</span></div>
+      <div class="track-cell"><span class="track-name">위드이노베이션</span><span class="exit-tag">IPO</span></div>
+      <div class="track-cell"><span class="track-detail">Travel — 여기어때 운영사</span></div>
+    </div>
+    <div class="track-row fade-in fade-delay-1">
+      <div class="track-cell"><span class="track-year">2020</span></div>
+      <div class="track-cell"><span class="track-name">크리에이터링크</span><span class="exit-tag">M&A</span></div>
+      <div class="track-cell"><span class="track-detail">Creator Tools — 웹빌더 플랫폼</span></div>
+    </div>
+    <div class="track-row fade-in fade-delay-2" style="border-bottom:none;">
+      <div class="track-cell"><span class="track-year">2022+</span></div>
+      <div class="track-cell"><span class="track-name">+7개사</span></div>
+      <div class="track-cell"><span class="track-detail" style="color:var(--text-muted);">NDA 유지 — 요청 시 공개 가능</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- NETWORK -->
+<section class="network-section" id="network">
+  <div class="section-label fade-in"><span class="ko">네트워크</span><span class="en">Network</span></div>
+  <div class="network-grid">
+    <div class="network-left">
+      <div class="network-stat fade-in">50<span>+</span></div>
+      <div class="network-desc fade-in fade-delay-1">
+        <span class="ko">매쉬업벤처스의 포트폴리오 창업자 중 50인 이상이<br/>다음 세대를 위한 멘토로 활동합니다.<br/>투자금과 함께 받는 실전 네트워크.</span>
+        <span class="en">50+ founders from our portfolio actively mentor<br/>the next generation of builders.<br/>Real network delivered alongside capital.</span>
+      </div>
+    </div>
+    <div class="network-right">
+      <div class="mentor-list fade-in fade-delay-2">
+        <div class="mentor-item">
+          <div class="mentor-name">안성우</div>
+          <div class="mentor-role">직방 Co-founder & CEO</div>
+        </div>
+        <div class="mentor-item">
+          <div class="mentor-name">김태훈</div>
+          <div class="mentor-role">뤼이드 Co-founder & CEO</div>
+        </div>
+        <div class="mentor-item">
+          <div class="mentor-name">이동건</div>
+          <div class="mentor-role">채널코퍼레이션 Co-founder</div>
+        </div>
+        <div class="mentor-item">
+          <div class="mentor-name">이수진</div>
+          <div class="mentor-role">포트원 Co-founder</div>
+        </div>
+        <div class="mentor-item">
+          <div class="mentor-name">박병선</div>
+          <div class="mentor-role">레이니스트 Co-founder</div>
+        </div>
+        <div class="mentor-item">
+          <div class="mentor-name">+ 45명</div>
+          <div class="mentor-role" style="color:var(--orange);">투자 후 소개</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTES -->
+<section class="quote-section">
+  <div class="section-label fade-in"><span class="ko">창업자의 말</span><span class="en">Founders Say</span></div>
+  <div class="quote-grid">
+    <div class="quote-card fade-in">
+      <div class="quote-mark">// TESTIMONIAL_01</div>
+      <div class="quote-text">
+        <span class="ko">"매쉬업은 우리가 아무것도 없을 때 가장 먼저 믿어준 VC입니다. 투자 이후에도 네트워크가 실제로 작동했습니다."</span>
+        <span class="en">"Mashup was the first to believe in us when we had nothing. Their network actually worked after the investment."</span>
+      </div>
+      <div class="quote-author">
+        <div class="quote-name">김○○</div>
+        <div class="quote-company">Series A 창업자, 2022</div>
+      </div>
+    </div>
+    <div class="quote-card fade-in fade-delay-1">
+      <div class="quote-mark">// TESTIMONIAL_02</div>
+      <div class="quote-text">
+        <span class="ko">"시드 라운드에서 리드를 맡아줬고, 후속 라운드 내내 함께 싸워줬습니다. 그게 진짜 파트너십입니다."</span>
+        <span class="en">"They led our seed and fought alongside us through every subsequent round. That's what real partnership looks like."</span>
+      </div>
+      <div class="quote-author">
+        <div class="quote-name">이○○</div>
+        <div class="quote-company">Series B 창업자, 2023</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="cta-tag fade-in">
+    <span class="ko">다음 번호</span>
+    <span class="en">Next Number</span>
+  </div>
+  <h2 class="cta-headline fade-in">
+    <span class="ko">207번째는<br/>당신입니다.</span>
+    <span class="en">207 could<br/>be yours.</span>
+  </h2>
+  <p class="cta-sub fade-in fade-delay-1">
+    <span class="ko">피치덱을 보내주세요. 2주 안에 연락드립니다.</span>
+    <span class="en">Send us your deck. We'll get back within 2 weeks.</span>
+  </p>
+  <a href="mailto:partners@mashupventures.co" class="cta-btn fade-in fade-delay-2">
+    <span class="ko">피칭 신청하기</span>
+    <span class="en">Pitch Us</span>
+    <span class="cta-arrow">→</span>
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand-name">Mashup<span>.</span>Ventures</div>
+      <div class="footer-desc">
+        <span class="ko">2013년부터 가장 이른 단계의 창업자를<br/>데이터가 아닌 확신으로 믿어온 VC.</span>
+        <span class="en">Since 2013, backing the earliest founders<br/>with conviction, not data.</span>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Navigate</div>
+      <ul class="footer-links">
+        <li><a href="#portfolio"><span class="ko">포트폴리오</span><span class="en">Portfolio</span></a></li>
+        <li><a href="#thesis"><span class="ko">투자 철학</span><span class="en">Thesis</span></a></li>
+        <li><a href="#network"><span class="ko">네트워크</span><span class="en">Network</span></a></li>
+        <li><a href="#track"><span class="ko">실적</span><span class="en">Track Record</span></a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Contact</div>
+      <ul class="footer-links">
+        <li><a href="mailto:partners@mashupventures.co">partners@</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">Brunch</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Office</div>
+      <ul class="footer-links">
+        <li><a href="#">서울특별시 강남구</a></li>
+        <li><a href="#">테헤란로 420</a></li>
+        <li><a href="#">인덱스빌딩 9층</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Mashup Ventures. All rights reserved.</div>
+    <div class="footer-meta">v4 — Direction C: Track Record</div>
+  </div>
+</footer>
+
+<script>
+  // ── PASSWORD GATE ──
+  const SESSION_KEY = 'mv_v4';
+  const SESSION_DURATION = 10 * 60 * 1000;
+  const PASSWORD = 'mashupmashup';
+
+  function checkSession() {
+    const stored = localStorage.getItem(SESSION_KEY);
+    if (!stored) return false;
+    const { timestamp } = JSON.parse(stored);
+    return (Date.now() - timestamp) < SESSION_DURATION;
+  }
+
+  function startSession() {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ timestamp: Date.now() }));
+  }
+
+  function checkPassword() {
+    const input = document.getElementById('gate-input');
+    if (input.value === PASSWORD) {
+      startSession();
+      document.getElementById('gate').classList.add('hidden');
+      document.getElementById('session-bar').classList.add('visible');
+      document.getElementById('nav').classList.add('bar-visible');
+      startTimer();
+      initPage();
+    } else {
+      input.classList.add('error');
+      input.value = '';
+      setTimeout(() => input.classList.remove('error'), 400);
+    }
+  }
+
+  document.getElementById('gate-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPassword();
+  });
+
+  if (checkSession()) {
+    document.getElementById('gate').classList.add('hidden');
+    document.getElementById('session-bar').classList.add('visible');
+    document.getElementById('nav').classList.add('bar-visible');
+    startTimer();
+    initPage();
+  }
+
+  // ── SESSION TIMER ──
+  function startTimer() {
+    const stored = JSON.parse(localStorage.getItem(SESSION_KEY));
+    const timerEl = document.getElementById('session-timer');
+    const bar = document.getElementById('session-bar');
+
+    function update() {
+      const elapsed = Date.now() - stored.timestamp;
+      const remaining = Math.max(0, SESSION_DURATION - elapsed);
+      const m = Math.floor(remaining / 60000);
+      const s = Math.floor((remaining % 60000) / 1000);
+      timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      if (remaining < 60000) bar.classList.add('warn');
+      if (remaining === 0) {
+        localStorage.removeItem(SESSION_KEY);
+        location.reload();
+      }
+    }
+
+    update();
+    setInterval(update, 1000);
+  }
+
+  // ── PAGE INIT ──
+  function initPage() {
+    // Count-up animation
+    document.querySelectorAll('[data-target]').forEach(el => {
+      const target = parseInt(el.dataset.target);
+      const duration = 1800;
+      const start = performance.now();
+      function step(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.floor(ease * target);
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+
+    // Scroll fade-in
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Portfolio filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  }
+
+  // ── NAV ──
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 80) {
+      nav.style.borderBottomColor = 'rgba(230,237,243,0.12)';
+    } else {
+      nav.style.borderBottomColor = 'var(--border)';
+    }
+  });
+
+  // ── LANG TOGGLE ──
+  function toggleLang() {
+    const body = document.body;
+    const btn = document.getElementById('lang-toggle');
+    if (body.classList.contains('lang-en')) {
+      body.classList.remove('lang-en');
+      btn.textContent = 'EN';
+    } else {
+      body.classList.add('lang-en');
+      btn.textContent = 'KO';
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,1056 +1,487 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>매쉬업벤처스</title>
-    <meta name="description" content="가장 이른 순간, 가장 깊이. 창업자 출신 파트너와 선배 창업자 네트워크.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>매쉬업벤처스 — Direction A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+:root{
+  --black:#0A0A0A;
+  --white:#F5F5F3;
+  --red:#E83A3A;
+  --red-dim:rgba(232,58,58,0.12);
+  --f-serif:'Libre Baskerville',Georgia,serif;
+  --f-sans:'Pretendard','Plus Jakarta Sans',sans-serif;
+  --f-mono:'JetBrains Mono',monospace;
+  --pad:clamp(24px,7vw,108px);
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
 
-    <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+body{font-family:var(--f-sans);-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}
 
-    :root {
-        --bg:         #181614;
-        --surface:    #201E1B;
-        --surface-2:  #252220;
-        --orange:     #E8621A;
-        --orange-dim: rgba(232,98,26,0.1);
-        --orange-hi:  #F07030;
-        --text:       #F0EDE8;
-        --text-2:     rgba(240,237,232,0.5);
-        --text-3:     rgba(240,237,232,0.22);
-        --border:     rgba(240,237,232,0.07);
-        --border-hi:  rgba(240,237,232,0.14);
+/* Custom cursor */
+.cursor{
+  position:fixed;width:10px;height:10px;
+  background:var(--red);border-radius:50%;
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:transform 0.1s ease,width 0.2s ease,height 0.2s ease;
+  mix-blend-mode:difference;
+}
+.cursor.hover{width:32px;height:32px;}
+a,button{cursor:none}
 
-        --f-display: 'Fraunces', Georgia, serif;
-        --f-sans:    'Pretendard', 'Plus Jakarta Sans', sans-serif;
-        --f-sans-en: 'Plus Jakarta Sans', sans-serif;
-        --f-mono:    'JetBrains Mono', monospace;
+/* PW Gate */
+#pw-gate{position:fixed;inset:0;z-index:9999;background:var(--black);display:flex;align-items:center;justify-content:center;}
+#pw-gate.hidden{display:none;}
+.pw-inner{display:flex;flex-direction:column;align-items:center;gap:20px;}
+.pw-logo{font-family:var(--f-serif);font-size:22px;color:var(--white);font-style:italic;letter-spacing:-0.01em;margin-bottom:4px;}
+.pw-sub{font-family:var(--f-mono);font-size:10px;color:rgba(245,245,243,0.3);letter-spacing:0.12em;text-transform:uppercase;}
+.pw-form{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:4px;}
+.pw-input{width:260px;padding:12px 18px;background:rgba(245,245,243,0.05);border:1px solid rgba(245,245,243,0.12);border-radius:2px;outline:none;font-family:var(--f-sans);font-size:14px;color:var(--white);text-align:center;letter-spacing:0.12em;transition:border-color 0.2s;}
+.pw-input::placeholder{color:rgba(245,245,243,0.2);}
+.pw-input:focus{border-color:rgba(245,245,243,0.3);}
+.pw-input.error{border-color:var(--red);animation:shake .35s ease;}
+.pw-btn{width:260px;padding:12px;background:var(--red);border:none;border-radius:2px;font-family:var(--f-sans);font-size:13px;font-weight:600;color:#fff;cursor:none;transition:opacity .2s;}
+.pw-btn:hover{opacity:.85;}
+.pw-err{font-family:var(--f-mono);font-size:11px;color:var(--red);opacity:0;transition:opacity .2s;height:14px;letter-spacing:.04em;}
+.pw-err.show{opacity:1;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
-        --max-w:  1280px;
-        --pad:    clamp(24px, 7vw, 112px);
-        --ease:   cubic-bezier(0.16, 1, 0.3, 1);
-    }
+/* Timer */
+#timer-bar{position:fixed;top:0;left:0;right:0;z-index:9000;height:32px;background:rgba(10,10,10,.95);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--f-mono);font-size:10px;color:rgba(245,245,243,.3);letter-spacing:.08em;border-bottom:1px solid rgba(245,245,243,.06);}
+#timer-bar.hidden{display:none;}
+#timer-bar span{color:rgba(245,245,243,.6);font-variant-numeric:tabular-nums;}
+body.has-timer nav{top:32px;}
 
-    body {
-        font-family: var(--f-sans);
-        background: var(--bg);
-        color: var(--text);
-        -webkit-font-smoothing: antialiased;
-        overflow-x: hidden;
-    }
-    a { color: inherit; text-decoration: none; }
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;display:flex;align-items:center;padding:0 var(--pad);justify-content:space-between;transition:background .4s,border-color .4s;}
+nav.on-light{border-bottom:1px solid rgba(10,10,10,.08);}
+.nav-logo{font-family:var(--f-serif);font-size:18px;font-weight:700;letter-spacing:-.02em;transition:color .4s;}
+nav.on-dark .nav-logo{color:var(--white);}
+nav.on-light .nav-logo{color:var(--black);}
+.nav-links{display:flex;gap:36px;list-style:none;}
+.nav-links a{font-size:13px;font-weight:400;transition:color .4s;}
+nav.on-dark .nav-links a{color:rgba(245,245,243,.45);}
+nav.on-dark .nav-links a:hover{color:var(--white);}
+nav.on-light .nav-links a{color:rgba(10,10,10,.4);}
+nav.on-light .nav-links a:hover{color:var(--black);}
+.nav-r{display:flex;align-items:center;gap:16px;}
+.lang-wrap{display:flex;align-items:center;gap:2px;}
+.lang-btn{font-family:var(--f-mono);font-size:10px;letter-spacing:.07em;background:none;border:none;cursor:none;padding:4px 5px;transition:color .3s;}
+.lang-btn.on{color:var(--red);}
+nav.on-dark .lang-btn{color:rgba(245,245,243,.25);}
+nav.on-dark .lang-btn.on{color:var(--red);}
+nav.on-light .lang-btn{color:rgba(10,10,10,.3);}
+nav.on-light .lang-btn.on{color:var(--red);}
+.lang-sep{font-size:11px;opacity:.3;}
+nav.on-dark .lang-sep{color:var(--white);}
+nav.on-light .lang-sep{color:var(--black);}
+.nav-apply{padding:8px 18px;border-radius:2px;font-family:var(--f-sans);font-size:12px;font-weight:600;letter-spacing:.02em;transition:background .2s,color .2s,border-color .2s;}
+nav.on-dark .nav-apply{border:1px solid rgba(245,245,243,.2);color:var(--white);}
+nav.on-dark .nav-apply:hover{background:var(--white);color:var(--black);}
+nav.on-light .nav-apply{border:1px solid var(--red);color:var(--red);}
+nav.on-light .nav-apply:hover{background:var(--red);color:#fff;}
 
-    /* ── Grain overlay ── */
-    body::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        z-index: 1;
-        pointer-events: none;
-        opacity: 0.035;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-        background-size: 200px 200px;
-    }
+/* SECTIONS alternating */
+.s-dark{background:var(--black);color:var(--white);}
+.s-light{background:#fff;color:var(--black);}
+.s-red{background:var(--red);color:#fff;}
 
-    /* ── PW Gate ── */
-    #pw-gate {
-        position: fixed; inset: 0; z-index: 9999;
-        background: #0E0C0A;
-        display: flex; align-items: center; justify-content: center;
-    }
-    #pw-gate.hidden { display: none; }
-    .pw-inner { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-    .pw-logo {
-        font-family: var(--f-display);
-        font-size: 24px; font-weight: 400;
-        color: var(--text); letter-spacing: -0.02em;
-        margin-bottom: 4px;
-    }
-    .pw-sub {
-        font-family: var(--f-mono); font-size: 10px;
-        color: var(--text-3); letter-spacing: 0.12em; text-transform: uppercase;
-    }
-    .pw-form { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 4px; }
-    .pw-input {
-        width: 260px; padding: 12px 18px;
-        background: rgba(240,237,232,0.04);
-        border: 1px solid rgba(240,237,232,0.1);
-        border-radius: 3px; outline: none;
-        font-family: var(--f-sans); font-size: 14px;
-        color: var(--text); text-align: center; letter-spacing: 0.12em;
-        transition: border-color 0.2s;
-    }
-    .pw-input::placeholder { color: var(--text-3); letter-spacing: 0.04em; }
-    .pw-input:focus { border-color: rgba(240,237,232,0.25); }
-    .pw-input.error { border-color: var(--orange); animation: shake 0.35s ease; }
-    .pw-btn {
-        width: 260px; padding: 12px;
-        background: var(--orange); border: none; border-radius: 3px;
-        font-family: var(--f-sans); font-size: 13px; font-weight: 600;
-        color: #fff; cursor: pointer; letter-spacing: 0.02em;
-        transition: background 0.2s;
-    }
-    .pw-btn:hover { background: var(--orange-hi); }
-    .pw-err {
-        font-family: var(--f-mono); font-size: 11px;
-        color: var(--orange); opacity: 0; transition: opacity 0.2s;
-        height: 14px; letter-spacing: 0.04em;
-    }
-    .pw-err.show { opacity: 1; }
-    @keyframes shake {
-        0%,100% { transform: translateX(0); }
-        25% { transform: translateX(-6px); }
-        75% { transform: translateX(6px); }
-    }
+.wrap{max-width:1280px;margin:0 auto;padding:0 var(--pad);}
 
-    /* ── Timer bar ── */
-    #timer-bar {
-        position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
-        height: 32px;
-        background: rgba(14,12,10,0.95);
-        backdrop-filter: blur(8px);
-        display: flex; align-items: center; justify-content: center;
-        gap: 8px; font-family: var(--f-mono); font-size: 10px;
-        color: var(--text-3); letter-spacing: 0.08em;
-        border-bottom: 1px solid var(--border);
-    }
-    #timer-bar.hidden { display: none; }
-    #timer-bar span { color: rgba(240,237,232,0.6); font-variant-numeric: tabular-nums; }
-    body.has-timer nav { top: 32px; }
+/* HERO */
+.hero{min-height:100vh;padding-top:60px;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:80px;position:relative;overflow:hidden;}
+.hero-bg-num{position:absolute;right:-30px;top:50%;transform:translateY(-50%);font-family:var(--f-serif);font-size:clamp(200px,22vw,360px);font-weight:700;color:rgba(245,245,243,.03);line-height:1;pointer-events:none;user-select:none;letter-spacing:-.05em;}
+.hero-tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:32px;display:flex;align-items:center;gap:10px;}
+.hero-tag::before{content:'//';opacity:.5;}
+.hero h1{font-family:var(--f-serif);font-size:clamp(52px,7.5vw,104px);font-weight:700;line-height:1.02;letter-spacing:-.03em;max-width:960px;margin-bottom:0;}
+.hero h1 em{font-style:italic;color:rgba(245,245,243,.4);}
+.hero-divider{height:1px;background:rgba(245,245,243,.08);margin:56px 0 40px;}
+.hero-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;}
+.hero-sub{font-size:14px;line-height:1.85;color:rgba(245,245,243,.45);max-width:280px;}
+.hero-nums{display:flex;gap:48px;text-align:right;}
+.hnum-val{font-family:var(--f-serif);font-size:clamp(28px,3vw,40px);font-weight:400;line-height:1;letter-spacing:-.025em;color:var(--white);}
+.hnum-val em{color:var(--red);font-style:normal;}
+.hnum-label{font-family:var(--f-mono);font-size:10px;color:rgba(245,245,243,.25);letter-spacing:.09em;text-transform:uppercase;margin-top:6px;}
 
-    /* ── Layout ── */
-    .wrap {
-        max-width: var(--max-w);
-        margin: 0 auto;
-        padding: 0 var(--pad);
-    }
+/* SPOTLIGHT (alternating featured companies) */
+.spotlight{display:grid;grid-template-columns:1fr 1fr;min-height:520px;}
+.spot-text{padding:88px var(--pad);display:flex;flex-direction:column;justify-content:space-between;}
+.spot-tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--red);margin-bottom:20px;}
+.spot-name{font-family:var(--f-serif);font-size:clamp(40px,5vw,72px);font-weight:700;letter-spacing:-.03em;line-height:1.0;}
+.spot-name.dim{color:rgba(10,10,10,.06);}
+.s-dark .spot-name.dim{color:rgba(245,245,243,.06);}
+.spot-desc{font-size:14px;line-height:1.75;margin-top:20px;max-width:340px;opacity:.5;}
+.spot-link{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;color:var(--red);margin-top:40px;transition:gap .2s;}
+.spot-link:hover{gap:14px;}
+.spot-visual{display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.spot-visual-text{font-family:var(--f-serif);font-size:clamp(80px,12vw,160px);font-weight:700;letter-spacing:-.05em;line-height:1;opacity:.05;}
 
-    /* ── NAV ── */
-    nav {
-        position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-        height: 60px;
-        display: flex; align-items: center;
-        transition: background 0.3s, border-color 0.3s;
-        border-bottom: 1px solid transparent;
-    }
-    nav.scrolled {
-        background: rgba(24,22,20,0.92);
-        backdrop-filter: blur(16px);
-        border-color: var(--border);
-    }
-    .nav-inner {
-        display: flex; align-items: center;
-        justify-content: space-between; width: 100%;
-    }
-    .nav-logo {
-        font-family: var(--f-display);
-        font-size: 18px; font-weight: 400;
-        color: var(--text); letter-spacing: -0.02em;
-        display: flex; align-items: center; gap: 8px;
-    }
-    .nav-dot {
-        width: 6px; height: 6px; border-radius: 50%;
-        background: var(--orange); flex-shrink: 0;
-    }
-    .nav-links {
-        display: flex; gap: 32px; list-style: none;
-    }
-    .nav-links a {
-        font-size: 13px; font-weight: 400;
-        color: var(--text-2);
-        transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--text); }
-    .nav-right { display: flex; align-items: center; gap: 16px; }
-    .lang-wrap { display: flex; align-items: center; gap: 2px; }
-    .lang-btn {
-        font-family: var(--f-mono); font-size: 10px;
-        letter-spacing: 0.07em; color: var(--text-3);
-        background: none; border: none; cursor: pointer; padding: 4px 5px;
-        transition: color 0.2s;
-    }
-    .lang-btn.on { color: var(--orange); }
-    .lang-sep { color: var(--border-hi); font-size: 12px; }
-    .btn-apply {
-        padding: 8px 18px;
-        border: 1px solid var(--orange);
-        border-radius: 3px;
-        font-family: var(--f-sans); font-size: 12px; font-weight: 500;
-        color: var(--orange); letter-spacing: 0.02em;
-        transition: background 0.2s, color 0.2s;
-    }
-    .btn-apply:hover { background: var(--orange); color: #fff; }
+/* STATS (light section) */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid rgba(10,10,10,.07);}
+.stat-cell{padding:64px 48px;border-right:1px solid rgba(10,10,10,.07);}
+.stat-cell:last-child{border-right:none;}
+.stat-cell:first-child{padding-left:0;}
+.stat-num{font-family:var(--f-serif);font-size:clamp(36px,4vw,56px);font-weight:400;letter-spacing:-.03em;line-height:1;color:var(--black);margin-bottom:8px;}
+.stat-num .red{color:var(--red);}
+.stat-label{font-family:var(--f-mono);font-size:11px;color:rgba(10,10,10,.35);letter-spacing:.06em;}
 
-    /* ── HERO ── */
-    .hero {
-        min-height: 100vh;
-        padding-top: 60px;
-        display: flex; flex-direction: column; justify-content: flex-end;
-        padding-bottom: 80px;
-        position: relative; overflow: hidden;
-        border-bottom: 1px solid var(--border);
-    }
-    .hero-year {
-        position: absolute; top: 80px; right: var(--pad);
-        font-family: var(--f-mono); font-size: 11px;
-        color: var(--text-3); letter-spacing: 0.1em;
-    }
-    .hero-bg-text {
-        position: absolute;
-        right: -20px; bottom: 40px;
-        font-family: var(--f-display);
-        font-size: clamp(180px, 22vw, 340px);
-        font-weight: 800;
-        line-height: 1;
-        color: rgba(240,237,232,0.03);
-        pointer-events: none; user-select: none;
-        letter-spacing: -0.05em;
-    }
-    .hero-label {
-        font-family: var(--f-mono); font-size: 10px;
-        letter-spacing: 0.14em; text-transform: uppercase;
-        color: var(--orange); margin-bottom: 28px;
-        display: flex; align-items: center; gap: 12px;
-    }
-    .hero-label::before { content: '//'; opacity: 0.6; }
-    .hero h1 {
-        font-family: var(--f-display);
-        font-size: clamp(56px, 8vw, 108px);
-        font-weight: 300;
-        font-variation-settings: 'opsz' 72, 'WONK' 1;
-        line-height: 1.02;
-        letter-spacing: -0.03em;
-        color: var(--text);
-        max-width: 900px;
-        margin-bottom: 0;
-    }
-    .hero h1 em {
-        font-style: italic;
-        font-variation-settings: 'opsz' 72, 'WONK' 1;
-        color: var(--orange);
-    }
-    .hero-bottom {
-        margin-top: 64px;
-        padding-top: 40px;
-        border-top: 1px solid var(--border);
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        gap: 40px;
-    }
-    .hero-sub {
-        font-size: 14px; line-height: 1.8;
-        color: var(--text-2); max-width: 300px;
-    }
-    .hero-stats {
-        display: flex; gap: 48px; text-align: right;
-    }
-    .hstat-val {
-        font-family: var(--f-display);
-        font-size: clamp(32px, 3.5vw, 44px);
-        font-weight: 300;
-        font-variation-settings: 'opsz' 36;
-        color: var(--text); line-height: 1;
-        letter-spacing: -0.03em;
-    }
-    .hstat-val em {
-        font-style: italic; color: var(--orange);
-        font-variation-settings: 'opsz' 36;
-    }
-    .hstat-label {
-        font-family: var(--f-mono); font-size: 10px;
-        color: var(--text-3); letter-spacing: 0.08em;
-        text-transform: uppercase; margin-top: 6px;
-    }
+/* THESIS (dark section) */
+.thesis-wrap{padding:112px 0;}
+.thesis-head{margin-bottom:72px;}
+.thesis-head h2{font-family:var(--f-serif);font-size:clamp(36px,4.5vw,60px);font-weight:700;letter-spacing:-.03em;line-height:1.05;max-width:640px;}
+.thesis-head h2 em{font-style:italic;color:rgba(245,245,243,.3);}
+.thesis-list{display:flex;flex-direction:column;gap:0;}
+.thesis-item{display:grid;grid-template-columns:80px 1fr;gap:48px;padding:48px 0;border-top:1px solid rgba(245,245,243,.07);}
+.thesis-item:last-child{border-bottom:1px solid rgba(245,245,243,.07);}
+.thesis-idx{font-family:var(--f-serif);font-size:56px;font-weight:400;color:rgba(245,245,243,.07);line-height:1;letter-spacing:-.04em;}
+.thesis-body h3{font-family:var(--f-serif);font-size:clamp(20px,2.5vw,28px);font-weight:700;letter-spacing:-.02em;margin-bottom:14px;}
+.thesis-body p{font-size:15px;line-height:1.8;color:rgba(245,245,243,.45);max-width:520px;}
 
-    /* ── MARQUEE ── */
-    .marquee-wrap {
-        border-bottom: 1px solid var(--border);
-        overflow: hidden; padding: 18px 0;
-        background: var(--surface);
-    }
-    .marquee-track {
-        display: flex; gap: 0;
-        animation: marquee 32s linear infinite;
-        width: max-content;
-    }
-    .marquee-wrap:hover .marquee-track { animation-play-state: paused; }
-    .marquee-item {
-        display: flex; align-items: center; gap: 32px;
-        padding: 0 32px;
-        font-family: var(--f-mono); font-size: 11px;
-        letter-spacing: 0.1em; text-transform: uppercase;
-        color: var(--text-3); white-space: nowrap;
-    }
-    .marquee-item::after {
-        content: '·';
-        color: var(--orange); font-size: 16px;
-    }
-    @keyframes marquee {
-        from { transform: translateX(0); }
-        to   { transform: translateX(-50%); }
-    }
+/* NETWORK (light section) */
+.network-wrap{padding:112px 0;}
+.network-inner{display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:start;}
+.network-left h2{font-family:var(--f-serif);font-size:clamp(36px,4.5vw,60px);font-weight:700;letter-spacing:-.03em;line-height:1.05;margin-bottom:24px;}
+.network-left h2 em{font-style:italic;color:rgba(10,10,10,.2);}
+.network-left p{font-size:15px;color:rgba(10,10,10,.5);line-height:1.8;margin-bottom:40px;max-width:360px;}
+.btn-serif{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-serif);font-size:14px;font-weight:700;font-style:italic;color:var(--red);letter-spacing:-.01em;border-bottom:1px solid currentColor;padding-bottom:3px;transition:gap .2s;}
+.btn-serif:hover{gap:16px;}
+.net-cells{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(10,10,10,.06);}
+.nc{background:#fff;padding:36px 32px;}
+.nc-num{font-family:var(--f-serif);font-size:clamp(32px,3.5vw,48px);font-weight:400;color:var(--red);line-height:1;letter-spacing:-.025em;margin-bottom:10px;}
+.nc-title{font-size:14px;font-weight:600;margin-bottom:6px;}
+.nc-desc{font-size:13px;color:rgba(10,10,10,.45);line-height:1.6;}
 
-    /* ── SECTION SHARED ── */
-    .section { padding: 112px 0; border-bottom: 1px solid var(--border); }
-    .eyebrow {
-        font-family: var(--f-mono); font-size: 10px;
-        letter-spacing: 0.14em; text-transform: uppercase;
-        color: var(--orange); display: block; margin-bottom: 32px;
-    }
-    .eyebrow::before { content: '// '; }
-    .display {
-        font-family: var(--f-display);
-        font-weight: 300;
-        font-variation-settings: 'opsz' 72, 'WONK' 0;
-        font-size: clamp(40px, 5vw, 68px);
-        line-height: 1.06;
-        letter-spacing: -0.025em;
-    }
-    .display em {
-        font-style: italic;
-        font-variation-settings: 'opsz' 72, 'WONK' 1;
-        color: var(--orange);
-    }
+/* QUOTE (dark section) */
+.quote-wrap{padding:120px 0;text-align:center;}
+.quote-inner{max-width:840px;margin:0 auto;}
+.quote-mark{font-family:var(--f-serif);font-size:88px;line-height:.5;color:var(--red);display:block;margin-bottom:36px;}
+.quote-text{font-family:var(--f-serif);font-size:clamp(22px,3vw,36px);font-weight:400;font-style:italic;line-height:1.5;letter-spacing:-.02em;color:rgba(245,245,243,.9);margin-bottom:40px;}
+.quote-author{font-family:var(--f-mono);font-size:11px;color:rgba(245,245,243,.25);letter-spacing:.1em;text-transform:uppercase;}
 
-    /* ── PORTFOLIO (list style) ── */
-    .pf-list { margin-top: 56px; }
-    .pf-row {
-        display: grid;
-        grid-template-columns: 48px 1fr 200px 160px;
-        align-items: center; gap: 32px;
-        padding: 28px 0;
-        border-top: 1px solid var(--border);
-        cursor: default;
-        transition: background 0.2s;
-    }
-    .pf-row:last-child { border-bottom: 1px solid var(--border); }
-    .pf-row:hover { background: rgba(240,237,232,0.02); }
-    .pf-row:hover .pf-name { color: var(--orange); }
-    .pf-idx {
-        font-family: var(--f-mono); font-size: 11px;
-        color: var(--text-3); letter-spacing: 0.06em;
-    }
-    .pf-name {
-        font-family: var(--f-display);
-        font-size: clamp(22px, 2.5vw, 32px);
-        font-weight: 300;
-        font-variation-settings: 'opsz' 28;
-        letter-spacing: -0.02em;
-        transition: color 0.2s;
-    }
-    .pf-desc {
-        font-size: 13px; color: var(--text-2);
-        line-height: 1.6;
-    }
-    .pf-badge {
-        justify-self: end;
-        font-family: var(--f-mono); font-size: 10px;
-        letter-spacing: 0.08em; text-transform: uppercase;
-        padding: 4px 10px; border-radius: 2px;
-    }
-    .pf-badge.active {
-        background: var(--orange-dim); color: var(--orange);
-    }
-    .pf-badge.exit {
-        background: rgba(240,237,232,0.05); color: var(--text-3);
-    }
-    .pf-footer {
-        margin-top: 40px;
-        display: flex; justify-content: space-between; align-items: center;
-    }
-    .link-mono {
-        font-family: var(--f-mono); font-size: 11px;
-        letter-spacing: 0.08em; color: var(--orange);
-        display: inline-flex; align-items: center; gap: 8px;
-        transition: gap 0.2s;
-    }
-    .link-mono:hover { gap: 14px; }
-    .pf-total {
-        font-family: var(--f-mono); font-size: 10px;
-        color: var(--text-3); letter-spacing: 0.1em; text-transform: uppercase;
-    }
+/* CTA (red section) */
+.cta-wrap{padding:112px 0;}
+.cta-inner{display:flex;justify-content:space-between;align-items:flex-end;gap:48px;}
+.cta-h{font-family:var(--f-serif);font-size:clamp(40px,5vw,72px);font-weight:700;letter-spacing:-.03em;line-height:1.0;max-width:560px;}
+.cta-h em{font-style:italic;opacity:.55;}
+.cta-right{display:flex;flex-direction:column;align-items:flex-end;gap:20px;flex-shrink:0;}
+.cta-sub{font-size:13px;opacity:.65;text-align:right;line-height:1.7;max-width:220px;}
+.btn-white{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;background:#fff;border:none;border-radius:2px;font-family:var(--f-sans);font-size:14px;font-weight:700;color:var(--red);transition:transform .2s,gap .2s;cursor:none;}
+.btn-white:hover{transform:translateY(-2px);gap:14px;}
 
-    /* ── THESIS ── */
-    .thesis-list { margin-top: 64px; }
-    .thesis-row {
-        display: grid;
-        grid-template-columns: 120px 1fr;
-        gap: 64px; align-items: start;
-        padding: 56px 0;
-        border-top: 1px solid var(--border);
-    }
-    .thesis-row:last-child { border-bottom: 1px solid var(--border); }
-    .thesis-num {
-        font-family: var(--f-display);
-        font-size: clamp(56px, 6vw, 80px);
-        font-weight: 300;
-        font-variation-settings: 'opsz' 72;
-        color: rgba(240,237,232,0.08);
-        line-height: 1;
-        letter-spacing: -0.04em;
-        padding-top: 8px;
-    }
-    .thesis-content h3 {
-        font-family: var(--f-display);
-        font-size: clamp(24px, 3vw, 36px);
-        font-weight: 400;
-        font-variation-settings: 'opsz' 32;
-        letter-spacing: -0.02em;
-        margin-bottom: 16px; line-height: 1.2;
-    }
-    .thesis-content p {
-        font-size: 15px; color: var(--text-2);
-        line-height: 1.8; max-width: 480px;
-    }
+/* FOOTER */
+footer{background:#050505;padding:64px var(--pad) 48px;}
+.footer-inner{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:56px;padding-bottom:56px;margin-bottom:40px;border-bottom:1px solid rgba(245,245,243,.05);}
+.f-logo{font-family:var(--f-serif);font-size:20px;font-weight:700;font-style:italic;color:var(--white);display:block;margin-bottom:12px;letter-spacing:-.02em;}
+.f-desc{font-size:13px;color:rgba(245,245,243,.22);line-height:1.75;max-width:220px;}
+.f-col h5{font-family:var(--f-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,245,243,.2);margin-bottom:18px;}
+.f-col ul{list-style:none;}
+.f-col li+li{margin-top:11px;}
+.f-col a{font-size:14px;color:rgba(245,245,243,.38);transition:color .2s;}
+.f-col a:hover{color:var(--white);}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;}
+.f-copy{font-family:var(--f-mono);font-size:10px;color:rgba(245,245,243,.15);letter-spacing:.04em;}
+.f-social{display:flex;gap:24px;}
+.f-social a{font-family:var(--f-mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:rgba(245,245,243,.25);transition:color .2s;}
+.f-social a:hover{color:var(--red);}
 
-    /* ── NETWORK ── */
-    .network-inner {
-        display: grid; grid-template-columns: 1fr 1fr;
-        gap: 80px; align-items: start;
-    }
-    .network-left { padding-top: 8px; }
-    .network-left .display { margin-bottom: 28px; }
-    .network-body {
-        font-size: 15px; color: var(--text-2);
-        line-height: 1.8; margin-bottom: 40px; max-width: 380px;
-    }
-    .btn-line {
-        display: inline-flex; align-items: center; gap: 10px;
-        font-family: var(--f-mono); font-size: 12px;
-        letter-spacing: 0.08em; color: var(--text);
-        border-bottom: 1px solid var(--border-hi);
-        padding-bottom: 4px;
-        transition: color 0.2s, border-color 0.2s, gap 0.2s;
-    }
-    .btn-line:hover { color: var(--orange); border-color: var(--orange); gap: 16px; }
-    .net-grid {
-        display: grid; grid-template-columns: 1fr 1fr;
-        gap: 1px; background: var(--border);
-        border: 1px solid var(--border);
-    }
-    .nc {
-        background: var(--bg);
-        padding: 36px 32px;
-        transition: background 0.2s;
-    }
-    .nc:hover { background: var(--surface); }
-    .nc-num {
-        font-family: var(--f-display);
-        font-size: clamp(36px, 4vw, 52px);
-        font-weight: 300;
-        font-variation-settings: 'opsz' 48, 'WONK' 1;
-        color: var(--orange); line-height: 1;
-        letter-spacing: -0.03em; margin-bottom: 10px;
-    }
-    .nc-title {
-        font-size: 14px; font-weight: 600;
-        margin-bottom: 8px; color: var(--text);
-    }
-    .nc-desc { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+/* REVEAL */
+.fade{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
+.fade.in{opacity:1;transform:none;}
+.d1{transition-delay:.07s}.d2{transition-delay:.14s}.d3{transition-delay:.21s}.d4{transition-delay:.28s}
 
-    /* ── PULL QUOTE ── */
-    .pullquote-section {
-        padding: 120px 0;
-        border-bottom: 1px solid var(--border);
-        text-align: center;
-    }
-    .pullquote-wrap { max-width: 800px; margin: 0 auto; }
-    .pq-mark {
-        font-family: var(--f-display);
-        font-size: 80px; line-height: 0.5;
-        color: var(--orange); display: block;
-        margin-bottom: 32px;
-        font-variation-settings: 'opsz' 72;
-    }
-    .pq-text {
-        font-family: var(--f-display);
-        font-size: clamp(24px, 3.5vw, 40px);
-        font-weight: 300;
-        font-style: italic;
-        font-variation-settings: 'opsz' 36, 'WONK' 1;
-        line-height: 1.45;
-        letter-spacing: -0.02em;
-        color: var(--text);
-        margin-bottom: 40px;
-    }
-    .pq-author {
-        font-family: var(--f-mono); font-size: 11px;
-        color: var(--text-3); letter-spacing: 0.1em; text-transform: uppercase;
-    }
-    .pq-author span { color: var(--text-2); }
-
-    /* ── CONTENT (editorial list) ── */
-    .ct-list { margin-top: 56px; }
-    .ct-row {
-        display: grid;
-        grid-template-columns: 160px 1fr 120px;
-        align-items: baseline; gap: 48px;
-        padding: 32px 0;
-        border-top: 1px solid var(--border);
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-    .ct-row:last-child { border-bottom: 1px solid var(--border); }
-    .ct-row:hover { background: rgba(240,237,232,0.02); }
-    .ct-row:hover .ct-title { color: var(--orange); }
-    .ct-cat {
-        font-family: var(--f-mono); font-size: 10px;
-        letter-spacing: 0.1em; text-transform: uppercase;
-        color: var(--orange);
-        padding-top: 4px;
-    }
-    .ct-title {
-        font-family: var(--f-display);
-        font-size: clamp(18px, 2vw, 24px);
-        font-weight: 400;
-        font-variation-settings: 'opsz' 20;
-        letter-spacing: -0.015em; line-height: 1.35;
-        transition: color 0.2s;
-    }
-    .ct-date {
-        font-family: var(--f-mono); font-size: 11px;
-        color: var(--text-3); letter-spacing: 0.04em;
-        text-align: right;
-    }
-
-    /* ── CTA ── */
-    .cta-section {
-        padding: 112px 0;
-        border-bottom: 1px solid var(--border);
-    }
-    .cta-inner {
-        display: flex; justify-content: space-between;
-        align-items: flex-end; gap: 48px;
-    }
-    .cta-left { max-width: 640px; }
-    .cta-left .display { margin-bottom: 20px; }
-    .cta-sub {
-        font-size: 15px; color: var(--text-2);
-        line-height: 1.8;
-    }
-    .btn-orange {
-        display: inline-flex; align-items: center; gap: 10px;
-        padding: 14px 28px;
-        background: var(--orange); border-radius: 3px;
-        font-family: var(--f-sans); font-size: 14px; font-weight: 600;
-        color: #fff; white-space: nowrap;
-        transition: background 0.2s, gap 0.2s;
-        flex-shrink: 0;
-    }
-    .btn-orange:hover { background: var(--orange-hi); gap: 14px; }
-
-    /* ── FOOTER ── */
-    footer {
-        padding: 64px 0 48px;
-        background: #0E0C0A;
-    }
-    .footer-top {
-        display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr;
-        gap: 56px; padding-bottom: 56px; margin-bottom: 40px;
-        border-bottom: 1px solid var(--border);
-    }
-    .f-logo {
-        font-family: var(--f-display);
-        font-size: 20px; font-weight: 400;
-        color: var(--text); letter-spacing: -0.02em;
-        display: flex; align-items: center; gap: 8px;
-        margin-bottom: 14px;
-    }
-    .f-desc { font-size: 13px; color: var(--text-3); line-height: 1.75; max-width: 240px; }
-    .f-col h5 {
-        font-family: var(--f-mono); font-size: 9px;
-        letter-spacing: 0.14em; text-transform: uppercase;
-        color: var(--text-3); margin-bottom: 20px;
-    }
-    .f-col ul { list-style: none; }
-    .f-col ul li + li { margin-top: 12px; }
-    .f-col ul a {
-        font-size: 14px; color: rgba(240,237,232,0.45);
-        transition: color 0.2s;
-    }
-    .f-col ul a:hover { color: var(--text); }
-    .footer-bottom {
-        display: flex; justify-content: space-between; align-items: center;
-    }
-    .f-copy {
-        font-family: var(--f-mono); font-size: 10px;
-        color: var(--text-3); letter-spacing: 0.04em;
-    }
-    .f-social { display: flex; gap: 24px; }
-    .f-social a {
-        font-family: var(--f-mono); font-size: 10px;
-        letter-spacing: 0.08em; text-transform: uppercase;
-        color: var(--text-3); transition: color 0.2s;
-    }
-    .f-social a:hover { color: var(--orange); }
-
-    /* ── SCROLL REVEAL ── */
-    .fade {
-        opacity: 0; transform: translateY(24px);
-        transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
-    }
-    .fade.in { opacity: 1; transform: none; }
-    .d1 { transition-delay: 0.06s; }
-    .d2 { transition-delay: 0.12s; }
-    .d3 { transition-delay: 0.18s; }
-    .d4 { transition-delay: 0.24s; }
-    .d5 { transition-delay: 0.30s; }
-    .d6 { transition-delay: 0.36s; }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 1023px) {
-        .pf-row { grid-template-columns: 40px 1fr 140px; }
-        .pf-desc { display: none; }
-        .network-inner { grid-template-columns: 1fr; gap: 56px; }
-        .ct-row { grid-template-columns: 120px 1fr; }
-        .ct-date { display: none; }
-        .cta-inner { flex-direction: column; align-items: flex-start; }
-        .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
-        .hero-stats { gap: 32px; }
-    }
-    @media (max-width: 767px) {
-        :root { --pad: 24px; }
-        .section { padding: 80px 0; }
-        .nav-links { display: none; }
-        .pf-row { grid-template-columns: 36px 1fr; }
-        .pf-badge { display: none; }
-        .thesis-row { grid-template-columns: 1fr; gap: 16px; }
-        .thesis-num { font-size: 48px; }
-        .net-grid { grid-template-columns: 1fr 1fr; }
-        .ct-row { grid-template-columns: 1fr; gap: 10px; }
-        .ct-cat { padding-top: 0; }
-        .footer-top { grid-template-columns: 1fr; }
-        .footer-bottom { flex-direction: column; gap: 16px; align-items: flex-start; }
-        .hero-bottom { flex-direction: column; align-items: flex-start; gap: 32px; }
-        .hero-stats { gap: 28px; text-align: left; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .fade { opacity: 1; transform: none; transition: none; }
-        .marquee-track { animation: none; }
-        * { transition-duration: 0.01ms !important; }
-    }
-    </style>
+/* RESPONSIVE */
+@media(max-width:1023px){
+  .spotlight{grid-template-columns:1fr;}
+  .spot-visual{display:none;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .stat-cell{border-right:none;border-bottom:1px solid rgba(10,10,10,.07);}
+  .network-inner{grid-template-columns:1fr;gap:56px;}
+  .cta-inner{flex-direction:column;align-items:flex-start;}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:40px;}
+}
+@media(max-width:767px){
+  :root{--pad:24px;}
+  .hero h1{font-size:clamp(44px,10vw,64px);}
+  .hero-bottom{flex-direction:column;align-items:flex-start;gap:28px;}
+  .hero-nums{gap:28px;text-align:left;}
+  .thesis-item{grid-template-columns:1fr;gap:8px;}
+  .thesis-idx{font-size:36px;}
+  .net-cells{grid-template-columns:1fr 1fr;}
+  .footer-inner{grid-template-columns:1fr;}
+  .nav-links{display:none;}
+  body{cursor:auto;}
+  .cursor{display:none;}
+}
+@media(prefers-reduced-motion:reduce){.fade{opacity:1;transform:none;transition:none;}*{transition-duration:.01ms!important;}}
+</style>
 </head>
 <body>
 
-<!-- Timer -->
+<div class="cursor" id="cursor"></div>
 <div id="timer-bar" class="hidden">세션 만료까지 <span id="timer-val">--:--</span> 남음</div>
-
-<!-- PW Gate -->
 <div id="pw-gate">
-    <div class="pw-inner">
-        <div class="pw-logo">Mashup Ventures</div>
-        <div class="pw-sub">비밀번호를 입력하세요</div>
-        <form class="pw-form" id="pw-form">
-            <input id="pw-input" class="pw-input" type="password" placeholder="password" autocomplete="current-password" autofocus>
-            <div class="pw-err" id="pw-err">비밀번호가 올바르지 않습니다</div>
-            <button type="submit" class="pw-btn">입장하기</button>
-        </form>
-    </div>
+  <div class="pw-inner">
+    <div class="pw-logo">Mashup Ventures</div>
+    <div class="pw-sub">비밀번호를 입력하세요</div>
+    <form class="pw-form" id="pw-form">
+      <input id="pw-input" class="pw-input" type="password" placeholder="password" autocomplete="current-password" autofocus>
+      <div class="pw-err" id="pw-err">비밀번호가 올바르지 않습니다</div>
+      <button type="submit" class="pw-btn">입장하기</button>
+    </form>
+  </div>
 </div>
 
-
-<!-- ═══ NAV ═══ -->
-<nav id="nav">
-    <div class="wrap">
-        <div class="nav-inner">
-            <a href="/" class="nav-logo">
-                <span class="nav-dot"></span>
-                Mashup Ventures
-            </a>
-            <ul class="nav-links">
-                <li><a href="#portfolio">포트폴리오</a></li>
-                <li><a href="#thesis">투자 관점</a></li>
-                <li><a href="#network">네트워크</a></li>
-                <li><a href="#contents">콘텐츠</a></li>
-                <li><a href="#apply">채용</a></li>
-            </ul>
-            <div class="nav-right">
-                <div class="lang-wrap">
-                    <button class="lang-btn on">KO</button>
-                    <span class="lang-sep">/</span>
-                    <button class="lang-btn">EN</button>
-                </div>
-                <a href="/apply" class="btn-apply">투자 신청</a>
-            </div>
-        </div>
+<!-- NAV -->
+<nav id="nav" class="on-dark">
+  <a href="/" class="nav-logo">Mashup Ventures</a>
+  <ul class="nav-links">
+    <li><a href="#portfolio">포트폴리오</a></li>
+    <li><a href="#thesis">투자 관점</a></li>
+    <li><a href="#network">네트워크</a></li>
+    <li><a href="#contents">콘텐츠</a></li>
+    <li><a href="#apply">채용</a></li>
+  </ul>
+  <div class="nav-r">
+    <div class="lang-wrap">
+      <button class="lang-btn on">KO</button>
+      <span class="lang-sep">/</span>
+      <button class="lang-btn">EN</button>
     </div>
+    <a href="/apply" class="nav-apply">투자 신청</a>
+  </div>
 </nav>
 
-
-<!-- ═══ HERO ═══ -->
-<section class="hero">
-    <div class="hero-year">Est. 2013</div>
-    <div class="hero-bg-text" aria-hidden="true">206</div>
-    <div class="wrap">
-        <div class="hero-label fade">Early-Stage Venture Capital</div>
-        <h1 class="fade d1">
-            가장 이른 순간,<br>
-            <em>가장 깊이</em><br>
-            함께합니다.
-        </h1>
-        <div class="hero-bottom fade d2">
-            <p class="hero-sub">창업자 출신 파트너.<br>50인 이상의 선배 창업자 네트워크.<br>남들이 망설이는 순간 우리가 먼저.</p>
-            <div class="hero-stats">
-                <div>
-                    <div class="hstat-val"><em>206</em></div>
-                    <div class="hstat-label">Portfolio</div>
-                </div>
-                <div>
-                    <div class="hstat-val">11.3<span style="font-size:0.55em;vertical-align:super;font-family:var(--f-sans-en)">조</span></div>
-                    <div class="hstat-label">Valuation</div>
-                </div>
-                <div>
-                    <div class="hstat-val">12</div>
-                    <div class="hstat-label">Exit</div>
-                </div>
-            </div>
+<!-- HERO — dark -->
+<section class="s-dark" data-nav="dark" id="hero">
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-bg-num" aria-hidden="true">206</div>
+      <div class="hero-tag fade">Early-Stage VC · Est. 2013</div>
+      <h1 class="fade d1">짓는 사람을 위한,<br><em>가장 이른 믿음.</em></h1>
+      <div class="hero-divider"></div>
+      <div class="hero-bottom fade d2">
+        <p class="hero-sub">사업계획서가 아닌 사람을 봅니다.<br>시장이 열리기 전에,<br>우리가 먼저 들어갑니다.</p>
+        <div class="hero-nums">
+          <div><div class="hnum-val"><em>206</em></div><div class="hnum-label">Portfolio</div></div>
+          <div><div class="hnum-val">11.3조</div><div class="hnum-label">Valuation</div></div>
+          <div><div class="hnum-val">12</div><div class="hnum-label">Exits</div></div>
         </div>
+      </div>
     </div>
+  </div>
 </section>
 
-
-<!-- ═══ MARQUEE ═══ -->
-<div class="marquee-wrap">
-    <div class="marquee-track" id="marquee">
-        <span class="marquee-item">오늘의집</span>
-        <span class="marquee-item">마이리얼트립</span>
-        <span class="marquee-item">리멤버</span>
-        <span class="marquee-item">Noom</span>
-        <span class="marquee-item">WRTN</span>
-        <span class="marquee-item">ScatterLab</span>
-        <span class="marquee-item">스타일쉐어</span>
-        <span class="marquee-item">SentBe</span>
-        <span class="marquee-item">Shiftee</span>
-        <span class="marquee-item">Humanscape</span>
-        <span class="marquee-item">Finda</span>
-        <span class="marquee-item">Beeble</span>
-        <span class="marquee-item">AIM Intelligence</span>
-        <span class="marquee-item">LionRocket</span>
-        <span class="marquee-item">Purple AI</span>
-        <span class="marquee-item">오늘의집</span>
-        <span class="marquee-item">마이리얼트립</span>
-        <span class="marquee-item">리멤버</span>
-        <span class="marquee-item">Noom</span>
-        <span class="marquee-item">WRTN</span>
-        <span class="marquee-item">ScatterLab</span>
-        <span class="marquee-item">스타일쉐어</span>
-        <span class="marquee-item">SentBe</span>
-        <span class="marquee-item">Shiftee</span>
-        <span class="marquee-item">Humanscape</span>
-        <span class="marquee-item">Finda</span>
-        <span class="marquee-item">Beeble</span>
-        <span class="marquee-item">AIM Intelligence</span>
-        <span class="marquee-item">LionRocket</span>
-        <span class="marquee-item">Purple AI</span>
+<!-- STATS — light -->
+<section class="s-light" data-nav="light" id="stats">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat-cell fade"><div class="stat-num"><span class="red">206</span>개사</div><div class="stat-label">누적 투자 기업</div></div>
+      <div class="stat-cell fade d1"><div class="stat-num">11.3조원</div><div class="stat-label">포트폴리오 합산 기업가치</div></div>
+      <div class="stat-cell fade d2"><div class="stat-num">2.4조원</div><div class="stat-label">후속 투자 유치액</div></div>
+      <div class="stat-cell fade d3"><div class="stat-num">12개사</div><div class="stat-label">IPO · M&amp;A 엑싯</div></div>
     </div>
-</div>
-
-
-<!-- ═══ PORTFOLIO ═══ -->
-<section class="section" id="portfolio">
-    <div class="wrap">
-        <span class="eyebrow fade">Portfolio</span>
-        <div class="display fade d1">선별된 창업자들과<br>함께한 <em>성장</em></div>
-        <div class="pf-list">
-            <div class="pf-row fade">
-                <span class="pf-idx">01</span>
-                <span class="pf-name">오늘의집</span>
-                <span class="pf-desc">국내 1위 인테리어 플랫폼 — 콘텐츠와 커머스의 결합</span>
-                <span class="pf-badge exit">IPO · 2015</span>
-            </div>
-            <div class="pf-row fade d1">
-                <span class="pf-idx">02</span>
-                <span class="pf-name">마이리얼트립</span>
-                <span class="pf-desc">현지인이 만드는 여행 — 해외 액티비티 예약 1위</span>
-                <span class="pf-badge exit">IPO · 2015</span>
-            </div>
-            <div class="pf-row fade d2">
-                <span class="pf-idx">03</span>
-                <span class="pf-name">리멤버</span>
-                <span class="pf-desc">명함에서 커리어 네트워크로 — 국내 최대 직장인 플랫폼</span>
-                <span class="pf-badge exit">Acquired</span>
-            </div>
-            <div class="pf-row fade d3">
-                <span class="pf-idx">04</span>
-                <span class="pf-name">WRTN</span>
-                <span class="pf-desc">국내 최대 AI 플랫폼 — 월간 사용자 500만+</span>
-                <span class="pf-badge active">Active</span>
-            </div>
-            <div class="pf-row fade d4">
-                <span class="pf-idx">05</span>
-                <span class="pf-name">제타 (ScatterLab)</span>
-                <span class="pf-desc">이루다를 만든 한국어 감성 AI — 독보적 기술 스택</span>
-                <span class="pf-badge active">Active</span>
-            </div>
-            <div class="pf-row fade d5">
-                <span class="pf-idx">06</span>
-                <span class="pf-name">Noom</span>
-                <span class="pf-desc">행동변화 기반 헬스케어 — 글로벌 시장 검증 완료</span>
-                <span class="pf-badge exit">Acquired</span>
-            </div>
-        </div>
-        <div class="pf-footer fade">
-            <a href="/portfolio" class="link-mono">전체 206개사 보기 →</a>
-            <span class="pf-total">206 Companies · Since 2013</span>
-        </div>
-    </div>
+  </div>
 </section>
 
-
-<!-- ═══ THESIS ═══ -->
-<section class="section" id="thesis">
-    <div class="wrap">
-        <span class="eyebrow fade">Investment Thesis</span>
-        <div class="display fade d1">우리가 <em>먼저</em><br>믿는 이유</div>
-        <div class="thesis-list">
-            <div class="thesis-row fade">
-                <div class="thesis-num">01</div>
-                <div class="thesis-content">
-                    <h3>창업자를 먼저 봅니다</h3>
-                    <p>사업계획서보다 창업자의 문제 정의 방식과 실행력을 봅니다. 우리는 아이디어가 아닌 사람에게 투자합니다. 창업자 출신 파트너이기 때문에 가능한 판단입니다.</p>
-                </div>
-            </div>
-            <div class="thesis-row fade d1">
-                <div class="thesis-num">02</div>
-                <div class="thesis-content">
-                    <h3>충분히 크고, 성장하는 시장</h3>
-                    <p>시장의 크기와 방향이 모든 것을 바꿉니다. 핵심 문제를 해결하는 팀이 충분히 큰 시장에 있을 때, 우리가 가장 먼저 들어갑니다.</p>
-                </div>
-            </div>
-            <div class="thesis-row fade d2">
-                <div class="thesis-num">03</div>
-                <div class="thesis-content">
-                    <h3>가장 이른 단계, 빠른 결정</h3>
-                    <p>Pre-seed부터 Seed까지. 최대 5억원, 1~2개월 내 결정. 남들이 망설이는 순간에 우리가 먼저 들어가는 것이 매쉬업의 존재 이유입니다.</p>
-                </div>
-            </div>
-        </div>
+<!-- PORTFOLIO SPOTLIGHT A — dark -->
+<section class="s-dark" data-nav="dark" id="portfolio">
+  <div class="spotlight fade">
+    <div class="spot-text">
+      <div>
+        <div class="spot-tag">Commerce · 2015년 투자</div>
+        <div class="spot-name">오늘의집</div>
+        <div class="spot-desc">국내 1위 인테리어 플랫폼. 콘텐츠와 커머스를 결합해 라이프스타일 슈퍼앱으로 성장했습니다.</div>
+      </div>
+      <a href="/portfolio" class="spot-link">포트폴리오 전체 보기 →</a>
     </div>
+    <div class="spot-visual s-dark">
+      <div class="spot-visual-text">집</div>
+    </div>
+  </div>
 </section>
 
-
-<!-- ═══ NETWORK ═══ -->
-<section class="section" id="network">
-    <div class="wrap">
-        <div class="network-inner">
-            <div class="network-left">
-                <span class="eyebrow fade">Growth Network</span>
-                <div class="display fade d1">자본 이상의<br><em>가치</em></div>
-                <p class="network-body fade d2">50인 이상의 선배 창업자 멘토, 1:1 오피스아워, 월간 세미나, 전문가 연결. 매쉬업벤처스가 다른 이유입니다.</p>
-                <a href="/growth-network" class="btn-line fade d3">네트워크 더 알아보기 →</a>
-            </div>
-            <div class="net-grid fade d1">
-                <div class="nc">
-                    <div class="nc-num">50+</div>
-                    <div class="nc-title">멘토 네트워크</div>
-                    <div class="nc-desc">각 분야 선배 창업자가 직접 멘토로 참여</div>
-                </div>
-                <div class="nc">
-                    <div class="nc-num">1:1</div>
-                    <div class="nc-title">오피스아워</div>
-                    <div class="nc-desc">필요한 순간 전문가와 직접 연결</div>
-                </div>
-                <div class="nc">
-                    <div class="nc-num">매월</div>
-                    <div class="nc-title">세미나</div>
-                    <div class="nc-desc">온·오프라인 전문가 세미나 정기 운영</div>
-                </div>
-                <div class="nc">
-                    <div class="nc-num">86명</div>
-                    <div class="nc-title">TIPS 선발</div>
-                    <div class="nc-desc">정부 R&amp;D 자금 최대 1.5억원 지원</div>
-                </div>
-            </div>
-        </div>
+<!-- PORTFOLIO SPOTLIGHT B — light -->
+<section class="s-light" data-nav="light">
+  <div class="spotlight fade">
+    <div class="spot-visual s-light">
+      <div class="spot-visual-text" style="color:var(--black)">AI</div>
     </div>
+    <div class="spot-text">
+      <div>
+        <div class="spot-tag">AI · 2021년 투자</div>
+        <div class="spot-name">WRTN</div>
+        <div class="spot-desc s-light">국내 최대 AI 플랫폼. 월간 사용자 500만. 생성형 AI 시대의 새로운 기준을 만들고 있습니다.</div>
+      </div>
+      <a href="/portfolio" class="spot-link">더 보기 →</a>
+    </div>
+  </div>
 </section>
 
-
-<!-- ═══ PULL QUOTE ═══ -->
-<div class="pullquote-section">
-    <div class="wrap">
-        <div class="pullquote-wrap fade">
-            <span class="pq-mark">"</span>
-            <p class="pq-text">매쉬업벤처스의 포트폴리오사라는 것만으로도 많은 투자자분들이 관심을 가져주었습니다.</p>
-            <div class="pq-author">포트폴리오사 대표 · <span>Seed 투자</span></div>
-        </div>
+<!-- PORTFOLIO SPOTLIGHT C — dark -->
+<section class="s-dark" data-nav="dark">
+  <div class="spotlight fade">
+    <div class="spot-text">
+      <div>
+        <div class="spot-tag">Travel · 2015년 투자</div>
+        <div class="spot-name">마이리얼트립</div>
+        <div class="spot-desc">해외 여행 액티비티 1위 플랫폼. 코로나 이후 빠른 회복세로 2024년 흑자 전환에 성공했습니다.</div>
+      </div>
+      <a href="/portfolio" class="spot-link">더 보기 →</a>
     </div>
-</div>
-
-
-<!-- ═══ CONTENTS ═══ -->
-<section class="section" id="contents">
-    <div class="wrap">
-        <span class="eyebrow fade">Contents</span>
-        <div class="display fade d1">인사이트를<br><em>공유합니다</em></div>
-        <div class="ct-list">
-            <div class="ct-row fade">
-                <span class="ct-cat">투자 관점</span>
-                <span class="ct-title">From Bits to Atoms: Physical World로 향하는 AI와 자본, 그리고 창업자들</span>
-                <span class="ct-date">2026.03</span>
-            </div>
-            <div class="ct-row fade d1">
-                <span class="ct-cat">매쉬업 뉴스</span>
-                <span class="ct-title">매쉬업벤처스, 국내 VC 최초 AI 파트너 신설 및 EIR 영입</span>
-                <span class="ct-date">2026.02</span>
-            </div>
-            <div class="ct-row fade d2">
-                <span class="ct-cat">창업자 스토리</span>
-                <span class="ct-title">AI 창업자의 취향: Promptable vs Unpromptable Taste</span>
-                <span class="ct-date">2026.01</span>
-            </div>
-        </div>
-        <div style="margin-top:40px;">
-            <a href="/contents" class="link-mono fade">더 많은 콘텐츠 보기 →</a>
-        </div>
+    <div class="spot-visual s-dark">
+      <div class="spot-visual-text">여행</div>
     </div>
+  </div>
 </section>
 
-
-<!-- ═══ CTA ═══ -->
-<section class="cta-section" id="apply">
-    <div class="wrap">
-        <div class="cta-inner">
-            <div class="cta-left">
-                <div class="display fade">지금 신청하세요.</div>
-                <p class="cta-sub fade d1">사업계획서가 없어도 됩니다.<br>아이디어와 팀이 있다면, 우리가 먼저 만나보겠습니다.</p>
-            </div>
-            <a href="/apply" class="btn-orange fade d2">투자검토 신청하기 →</a>
+<!-- THESIS — light -->
+<section class="s-light" data-nav="light" id="thesis">
+  <div class="wrap">
+    <div class="thesis-wrap">
+      <div class="thesis-head fade">
+        <h2>우리가 <em>먼저</em><br>믿는 이유</h2>
+      </div>
+      <div class="thesis-list">
+        <div class="thesis-item fade">
+          <div class="thesis-idx">01</div>
+          <div class="thesis-body">
+            <h3>창업자를 먼저 봅니다</h3>
+            <p style="color:rgba(10,10,10,.45)">사업계획서보다 창업자의 문제 정의 방식과 실행력을 봅니다. 우리는 아이디어가 아닌 사람에게 투자합니다. 창업자 출신 파트너이기 때문에 가능한 판단입니다.</p>
+          </div>
         </div>
+        <div class="thesis-item fade d1">
+          <div class="thesis-idx">02</div>
+          <div class="thesis-body">
+            <h3>충분히 크고, 성장하는 시장</h3>
+            <p style="color:rgba(10,10,10,.45)">시장의 크기와 방향이 모든 것을 바꿉니다. 핵심 문제를 해결하는 팀이 충분히 큰 시장에 있을 때, 우리가 가장 먼저 들어갑니다.</p>
+          </div>
+        </div>
+        <div class="thesis-item fade d2">
+          <div class="thesis-idx">03</div>
+          <div class="thesis-body">
+            <h3>가장 이른 단계, 빠른 결정</h3>
+            <p style="color:rgba(10,10,10,.45)">Pre-seed부터 Seed까지. 최대 5억원, 1~2개월 내 결정. 남들이 망설이는 순간 먼저 들어가는 것이 매쉬업의 존재 이유입니다.</p>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
+<!-- NETWORK — dark -->
+<section class="s-dark" data-nav="dark" id="network">
+  <div class="wrap">
+    <div class="network-wrap">
+      <div class="network-inner">
+        <div class="network-left fade">
+          <h2>자본 이상의<br><em>가치</em></h2>
+          <p>50인 이상의 선배 창업자 멘토 네트워크, 1:1 오피스아워, 월간 세미나. 매쉬업벤처스가 다른 이유입니다.</p>
+          <a href="/growth-network" class="btn-serif">네트워크 더 알아보기 →</a>
+        </div>
+        <div class="net-cells fade d1">
+          <div class="nc"><div class="nc-num">50+</div><div class="nc-title">멘토 네트워크</div><div class="nc-desc">각 분야 선배 창업자가 직접 멘토로 참여</div></div>
+          <div class="nc"><div class="nc-num">1:1</div><div class="nc-title">오피스아워</div><div class="nc-desc">필요한 순간 전문가와 직접 연결</div></div>
+          <div class="nc"><div class="nc-num">매월</div><div class="nc-title">세미나</div><div class="nc-desc">온·오프라인 전문가 세미나 정기 운영</div></div>
+          <div class="nc"><div class="nc-num">86명</div><div class="nc-title">TIPS 선발</div><div class="nc-desc">정부 R&amp;D 자금 최대 1.5억원 지원</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-<!-- ═══ FOOTER ═══ -->
+<!-- QUOTE — light -->
+<section class="s-light" data-nav="light">
+  <div class="wrap">
+    <div class="quote-wrap" style="color:var(--black)">
+      <div class="quote-inner fade">
+        <span class="quote-mark" style="color:var(--red)">"</span>
+        <p class="quote-text" style="color:rgba(10,10,10,.85)">매쉬업벤처스의 포트폴리오사라는 것만으로도 많은 투자자분들이 관심을 가져주었습니다.</p>
+        <div class="quote-author" style="color:rgba(10,10,10,.3)">포트폴리오사 대표 · Seed 투자</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA — red -->
+<section class="s-red" data-nav="red" id="apply">
+  <div class="wrap">
+    <div class="cta-wrap">
+      <div class="cta-inner">
+        <div class="cta-h fade">지금<br>신청하세요.</div>
+        <div class="cta-right fade d1">
+          <p class="cta-sub">사업계획서가 없어도 됩니다.<br>아이디어와 팀이 있다면,<br>우리가 먼저 만나보겠습니다.</p>
+          <a href="/apply" class="btn-white">투자검토 신청하기 →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer>
-    <div class="wrap">
-        <div class="footer-top">
-            <div>
-                <div class="f-logo"><span class="nav-dot"></span>Mashup Ventures</div>
-                <p class="f-desc">가장 이른 순간, 가장 깊이. 창업자 출신 파트너와 선배 창업자 네트워크가 함께합니다.</p>
-            </div>
-            <div class="f-col">
-                <h5>Navigate</h5>
-                <ul>
-                    <li><a href="/team">팀</a></li>
-                    <li><a href="/portfolio">포트폴리오</a></li>
-                    <li><a href="/growth-network">가치성장 네트워크</a></li>
-                    <li><a href="/contents">콘텐츠</a></li>
-                </ul>
-            </div>
-            <div class="f-col">
-                <h5>Company</h5>
-                <ul>
-                    <li><a href="/apply">투자검토 신청</a></li>
-                    <li><a href="/career">채용</a></li>
-                    <li><a href="mailto:info@mashupventures.co">info@mashupventures.co</a></li>
-                </ul>
-            </div>
-            <div class="f-col">
-                <h5>Connect</h5>
-                <ul>
-                    <li><a href="#">뉴스레터 구독</a></li>
-                    <li><a href="#">LinkedIn</a></li>
-                    <li><a href="#">Instagram</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <span class="f-copy">© 2026 Mashup Ventures. All rights reserved.</span>
-            <div class="f-social">
-                <a href="#">LinkedIn</a>
-                <a href="#">Instagram</a>
-                <a href="#">Newsletter</a>
-            </div>
-        </div>
+  <div class="footer-inner">
+    <div>
+      <a href="/" class="f-logo">Mashup Ventures</a>
+      <p class="f-desc">가장 이른 순간, 가장 깊이. 짓는 사람을 위한 첫 번째 투자자.</p>
     </div>
+    <div class="f-col"><h5>Navigate</h5><ul><li><a href="/team">팀</a></li><li><a href="/portfolio">포트폴리오</a></li><li><a href="/growth-network">네트워크</a></li><li><a href="/contents">콘텐츠</a></li></ul></div>
+    <div class="f-col"><h5>Company</h5><ul><li><a href="/apply">투자검토 신청</a></li><li><a href="/career">채용</a></li><li><a href="mailto:info@mashupventures.co">info@</a></li></ul></div>
+    <div class="f-col"><h5>Connect</h5><ul><li><a href="#">뉴스레터</a></li><li><a href="#">LinkedIn</a></li><li><a href="#">Instagram</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span class="f-copy">© 2026 Mashup Ventures. All rights reserved.</span>
+    <div class="f-social"><a href="#">LinkedIn</a><a href="#">Instagram</a><a href="#">Newsletter</a></div>
+  </div>
 </footer>
 
-
 <script>
-    // ── PW + session ──
-    const PW = 'mashupmashup', SESSION = 10*60*1000, KEY = 'mashup_v2_auth';
-    const gate = document.getElementById('pw-gate');
-    const pwForm = document.getElementById('pw-form');
-    const pwInput = document.getElementById('pw-input');
-    const pwErr = document.getElementById('pw-err');
-    const tbar = document.getElementById('timer-bar');
-    const tval = document.getElementById('timer-val');
-    let ticker = null;
+// PW
+const PW='mashupmashup',SESSION=600000,KEY='mv_v2';
+const gate=document.getElementById('pw-gate'),form=document.getElementById('pw-form'),inp=document.getElementById('pw-input'),err=document.getElementById('pw-err'),tbar=document.getElementById('timer-bar'),tval=document.getElementById('timer-val');
+let tk=null;
+function grant(){const u=Date.now()+SESSION;localStorage.setItem(KEY,u);gate.classList.add('hidden');startT(u);}
+function startT(u){tbar.classList.remove('hidden');document.body.classList.add('has-timer');function tick(){const r=u-Date.now();if(r<=0){clearInterval(tk);tbar.classList.add('hidden');document.body.classList.remove('has-timer');localStorage.removeItem(KEY);gate.classList.remove('hidden');inp.value='';return;}tval.textContent=String(Math.floor(r/60000)).padStart(2,'0')+':'+String(Math.floor(r%60000/1000)).padStart(2,'0');}tick();tk=setInterval(tick,1000);}
+const sv=localStorage.getItem(KEY);if(sv){const u=+sv;if(Date.now()<u){gate.classList.add('hidden');startT(u);}else localStorage.removeItem(KEY);}
+form.addEventListener('submit',e=>{e.preventDefault();if(inp.value===PW){grant();}else{inp.classList.add('error');err.classList.add('show');inp.value='';setTimeout(()=>inp.classList.remove('error'),400);}});
+inp.addEventListener('input',()=>err.classList.remove('show'));
+inp.addEventListener('keydown',e=>{if(e.key!=='Backspace'&&!/^[a-zA-Z0-9!@#$%]$/.test(e.key))e.preventDefault();});
 
-    function grant() {
-        const until = Date.now() + SESSION;
-        localStorage.setItem(KEY, String(until));
-        gate.classList.add('hidden');
-        startTimer(until);
+// Nav color switching
+const nav=document.getElementById('nav');
+const sections=document.querySelectorAll('[data-nav]');
+const navObserver=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const t=e.target.dataset.nav;
+      nav.classList.remove('on-dark','on-light','on-red');
+      if(t==='light')nav.classList.add('on-light');
+      else nav.classList.add('on-dark');
     }
-    function startTimer(until) {
-        tbar.classList.remove('hidden');
-        document.body.classList.add('has-timer');
-        function tick() {
-            const r = until - Date.now();
-            if (r <= 0) {
-                clearInterval(ticker);
-                tbar.classList.add('hidden');
-                document.body.classList.remove('has-timer');
-                localStorage.removeItem(KEY);
-                gate.classList.remove('hidden');
-                pwInput.value = '';
-                return;
-            }
-            tval.textContent = String(Math.floor(r/60000)).padStart(2,'0') + ':' + String(Math.floor((r%60000)/1000)).padStart(2,'0');
-        }
-        tick(); ticker = setInterval(tick, 1000);
-    }
-    const s = localStorage.getItem(KEY);
-    if (s) { const u = +s; if (Date.now() < u) { gate.classList.add('hidden'); startTimer(u); } else localStorage.removeItem(KEY); }
+  });
+},{threshold:0.4});
+sections.forEach(s=>navObserver.observe(s));
 
-    pwForm.addEventListener('submit', e => {
-        e.preventDefault();
-        if (pwInput.value === PW) { grant(); }
-        else {
-            pwInput.classList.add('error');
-            pwErr.classList.add('show');
-            pwInput.value = '';
-            setTimeout(() => pwInput.classList.remove('error'), 400);
-        }
-    });
-    pwInput.addEventListener('input', () => pwErr.classList.remove('show'));
-    pwInput.addEventListener('keydown', e => {
-        if (e.key !== 'Backspace' && !/^[a-zA-Z0-9!@#$%]$/.test(e.key)) e.preventDefault();
-    });
+// Reveal
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:0.08,rootMargin:'0px 0px -32px 0px'});
+document.querySelectorAll('.fade').forEach(el=>io.observe(el));
+document.querySelectorAll('#hero .fade').forEach((el,i)=>setTimeout(()=>el.classList.add('in'),100+i*100));
 
-    // ── Nav scroll ──
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 40), { passive: true });
+// Cursor
+const cursor=document.getElementById('cursor');
+document.addEventListener('mousemove',e=>{cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';});
+document.querySelectorAll('a,button').forEach(el=>{el.addEventListener('mouseenter',()=>cursor.classList.add('hover'));el.addEventListener('mouseleave',()=>cursor.classList.remove('hover'));});
 
-    // ── Fade reveal ──
-    const io = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-    }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
-    document.querySelectorAll('.fade').forEach(el => io.observe(el));
-
-    // ── Hero immediate ──
-    document.querySelectorAll('.hero .fade').forEach((el, i) => {
-        setTimeout(() => el.classList.add('in'), 100 + i * 100);
-    });
-
-    // ── Lang toggle ──
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('on'));
-            btn.classList.add('on');
-        });
-    });
+// Lang
+document.querySelectorAll('.lang-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.lang-btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');});});
 </script>
 </body>
 </html>
