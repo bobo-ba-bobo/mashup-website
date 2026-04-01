@@ -1158,7 +1158,7 @@
     // ── Password + session ──
     const PW = 'mashupmashup';
     const SESSION = 10 * 60 * 1000;
-    const STORE_KEY = 'mashup_v1_auth';
+    const STORE_KEY = 'mv_auth';
     const gate = document.getElementById('pw-gate');
     const pwForm = document.getElementById('pw-form');
     const pwInput = document.getElementById('pw-input');
@@ -1168,10 +1168,10 @@
     let timerInterval = null;
 
     function grantAccess() {
-        const until = Date.now() + SESSION;
-        localStorage.setItem(STORE_KEY, until.toString());
+        const t = Date.now();
+        localStorage.setItem(STORE_KEY, JSON.stringify({ t }));
         gate.classList.add('hidden');
-        startTimer(until);
+        startTimer(t + SESSION);
     }
     function startTimer(until) {
         timerBar.classList.remove('hidden');
@@ -1196,9 +1196,12 @@
     }
     const stored = localStorage.getItem(STORE_KEY);
     if (stored) {
-        const until = parseInt(stored, 10);
-        if (Date.now() < until) { gate.classList.add('hidden'); startTimer(until); }
-        else localStorage.removeItem(STORE_KEY);
+        try {
+            const { t } = JSON.parse(stored);
+            const until = t + SESSION;
+            if (Date.now() < until) { gate.classList.add('hidden'); startTimer(until); }
+            else localStorage.removeItem(STORE_KEY);
+        } catch { localStorage.removeItem(STORE_KEY); }
     }
     pwForm.addEventListener('submit', e => {
         e.preventDefault();
@@ -1212,6 +1215,10 @@
         }
     });
     pwInput.addEventListener('input', () => pwErr.classList.remove('show'));
+    pwInput.addEventListener('keydown', e => {
+        if (e.key !== 'Backspace' && e.key !== 'Tab' && !/^[a-zA-Z0-9!@#$%^&*]$/.test(e.key)) e.preventDefault();
+    });
+    pwInput.addEventListener('compositionstart', () => { pwInput.blur(); setTimeout(() => pwInput.focus(), 10); });
     pwInput.addEventListener('keydown', e => {
         if (e.key !== 'Backspace' && !/^[a-zA-Z0-9!@#$%^&*]$/.test(e.key)) e.preventDefault();
     });

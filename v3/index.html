@@ -635,51 +635,47 @@
   <div class="portfolio-grid fade-in">
     <div class="port-item">
       <div class="port-year">2014</div>
-      <div class="port-name">직방</div>
-      <div class="port-tag">PropTech</div>
-      <div class="port-exit">EXIT — IPO</div>
+      <div class="port-name">버킷플레이스</div>
+      <div class="port-tag">Interior / Consumer</div>
     </div>
     <div class="port-item">
       <div class="port-year">2015</div>
-      <div class="port-name">부릉 (메쉬코리아)</div>
-      <div class="port-tag">Logistics</div>
-      <div class="port-exit">EXIT — M&A</div>
+      <div class="port-name">마이리얼트립</div>
+      <div class="port-tag">Travel / Leisure</div>
     </div>
     <div class="port-item">
       <div class="port-year">2016</div>
-      <div class="port-name">하이퍼커넥트</div>
-      <div class="port-tag">Consumer</div>
-      <div class="port-exit">EXIT — M&A</div>
+      <div class="port-name">ScatterLab</div>
+      <div class="port-tag">AI / NLP</div>
     </div>
     <div class="port-item">
-      <div class="port-year">2017</div>
-      <div class="port-name">뤼이드</div>
-      <div class="port-tag">EdTech / AI</div>
+      <div class="port-year">2016</div>
+      <div class="port-name">SentBe</div>
+      <div class="port-tag">Fintech / Remittance</div>
     </div>
     <div class="port-item">
-      <div class="port-year">2019</div>
-      <div class="port-name">채널코퍼레이션</div>
-      <div class="port-tag">SaaS / CX</div>
+      <div class="port-year">2018</div>
+      <div class="port-name">Shiftee</div>
+      <div class="port-tag">HR SaaS</div>
     </div>
     <div class="port-item">
-      <div class="port-year">2020</div>
-      <div class="port-name">레이니스트</div>
+      <div class="port-year">2018</div>
+      <div class="port-name">Finda</div>
       <div class="port-tag">Fintech</div>
     </div>
     <div class="port-item">
+      <div class="port-year">2019</div>
+      <div class="port-name">StyleShare</div>
+      <div class="port-tag">Fashion / Social</div>
+    </div>
+    <div class="port-item">
       <div class="port-year">2021</div>
-      <div class="port-name">포트원</div>
-      <div class="port-tag">Fintech Infra</div>
+      <div class="port-name">WRTN (뤼튼)</div>
+      <div class="port-tag">AI / LLM</div>
     </div>
     <div class="port-item">
       <div class="port-year">2022</div>
-      <div class="port-name">위드이노베이션</div>
-      <div class="port-tag">Travel</div>
-      <div class="port-exit">EXIT — IPO</div>
-    </div>
-    <div class="port-item">
-      <div class="port-year">2024</div>
-      <div class="port-name">퍼플아이오</div>
+      <div class="port-name">Purple AI</div>
       <div class="port-tag">AI</div>
     </div>
     <div class="port-item" style="grid-column:span 3;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;">
@@ -763,24 +759,24 @@
     </div>
     <div class="mentor-grid fade-in fd2">
       <div class="mentor-card">
-        <div class="mentor-name">안성우</div>
-        <div class="mentor-co">직방 Co-founder & CEO</div>
+        <div class="mentor-name">○○○</div>
+        <div class="mentor-co">버킷플레이스 Co-founder</div>
       </div>
       <div class="mentor-card">
-        <div class="mentor-name">김태훈</div>
-        <div class="mentor-co">뤼이드 Co-founder & CEO</div>
+        <div class="mentor-name">○○○</div>
+        <div class="mentor-co">마이리얼트립 Co-founder</div>
       </div>
       <div class="mentor-card">
-        <div class="mentor-name">이동건</div>
-        <div class="mentor-co">채널코퍼레이션</div>
+        <div class="mentor-name">○○○</div>
+        <div class="mentor-co">Shiftee Co-founder</div>
       </div>
       <div class="mentor-card">
-        <div class="mentor-name">이수진</div>
-        <div class="mentor-co">포트원 Co-founder</div>
+        <div class="mentor-name">○○○</div>
+        <div class="mentor-co">SentBe Co-founder</div>
       </div>
       <div class="mentor-card">
-        <div class="mentor-name">박병선</div>
-        <div class="mentor-co">레이니스트</div>
+        <div class="mentor-name">○○○</div>
+        <div class="mentor-co">WRTN Co-founder</div>
       </div>
       <div class="mentor-card" style="background:rgba(79,70,229,0.12);">
         <div class="mentor-name" style="color:var(--indigo);">+ 45명</div>
@@ -879,7 +875,7 @@
 </footer>
 
 <script>
-  const SESSION_KEY = 'mv_v3';
+  const SESSION_KEY = 'mv_auth';
   const DURATION = 10 * 60 * 1000;
   const PW = 'mashupmashup';
 
@@ -897,9 +893,12 @@
     }
   }
 
-  document.getElementById('gate-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkGate();
+  const gateEl3 = document.getElementById('gate-input');
+  gateEl3.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { checkGate(); return; }
+    if (e.key !== 'Backspace' && e.key !== 'Tab' && !/^[a-zA-Z0-9!@#$%^&*]$/.test(e.key)) e.preventDefault();
   });
+  gateEl3.addEventListener('compositionstart', () => { gateEl3.blur(); setTimeout(() => gateEl3.focus(), 10); });
 
   function hasSession() {
     const s = localStorage.getItem(SESSION_KEY);

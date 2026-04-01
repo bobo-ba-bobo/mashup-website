@@ -760,20 +760,20 @@
 </footer>
 
 <script>
-  const SESSION_KEY = 'mv_compare';
+  const SESSION_KEY = 'mv_auth';
   const SESSION_DURATION = 10 * 60 * 1000;
   const PASSWORD = 'mashupmashup';
 
   function checkSession() {
     const stored = localStorage.getItem(SESSION_KEY);
     if (!stored) return false;
-    return (Date.now() - JSON.parse(stored).timestamp) < SESSION_DURATION;
+    return (Date.now() - JSON.parse(stored).t) < SESSION_DURATION;
   }
 
   function checkGate() {
     const input = document.getElementById('gate-input');
     if (input.value === PASSWORD) {
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ timestamp: Date.now() }));
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ t: Date.now() }));
       document.getElementById('gate').classList.add('hidden');
     } else {
       input.classList.add('error');
@@ -782,9 +782,12 @@
     }
   }
 
-  document.getElementById('gate-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkGate();
+  const gateElC = document.getElementById('gate-input');
+  gateElC.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { checkGate(); return; }
+    if (e.key !== 'Backspace' && e.key !== 'Tab' && !/^[a-zA-Z0-9!@#$%^&*]$/.test(e.key)) e.preventDefault();
   });
+  gateElC.addEventListener('compositionstart', () => { gateElC.blur(); setTimeout(() => gateElC.focus(), 10); });
 
   if (checkSession()) {
     document.getElementById('gate').classList.add('hidden');

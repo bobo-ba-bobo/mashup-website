@@ -445,15 +445,16 @@ footer{background:#050505;padding:64px var(--pad) 48px;}
 
 <script>
 // PW
-const PW='mashupmashup',SESSION=600000,KEY='mv_v2';
+const PW='mashupmashup',SESSION=600000,KEY='mv_auth';
 const gate=document.getElementById('pw-gate'),form=document.getElementById('pw-form'),inp=document.getElementById('pw-input'),err=document.getElementById('pw-err'),tbar=document.getElementById('timer-bar'),tval=document.getElementById('timer-val');
 let tk=null;
-function grant(){const u=Date.now()+SESSION;localStorage.setItem(KEY,u);gate.classList.add('hidden');startT(u);}
+function grant(){const t=Date.now();localStorage.setItem(KEY,JSON.stringify({t}));const u=t+SESSION;gate.classList.add('hidden');startT(u);}
 function startT(u){tbar.classList.remove('hidden');document.body.classList.add('has-timer');function tick(){const r=u-Date.now();if(r<=0){clearInterval(tk);tbar.classList.add('hidden');document.body.classList.remove('has-timer');localStorage.removeItem(KEY);gate.classList.remove('hidden');inp.value='';return;}tval.textContent=String(Math.floor(r/60000)).padStart(2,'0')+':'+String(Math.floor(r%60000/1000)).padStart(2,'0');}tick();tk=setInterval(tick,1000);}
-const sv=localStorage.getItem(KEY);if(sv){const u=+sv;if(Date.now()<u){gate.classList.add('hidden');startT(u);}else localStorage.removeItem(KEY);}
+const sv=localStorage.getItem(KEY);if(sv){try{const{t}=JSON.parse(sv);const u=t+SESSION;if(Date.now()<u){gate.classList.add('hidden');startT(u);}else localStorage.removeItem(KEY);}catch{localStorage.removeItem(KEY);}}
 form.addEventListener('submit',e=>{e.preventDefault();if(inp.value===PW){grant();}else{inp.classList.add('error');err.classList.add('show');inp.value='';setTimeout(()=>inp.classList.remove('error'),400);}});
 inp.addEventListener('input',()=>err.classList.remove('show'));
-inp.addEventListener('keydown',e=>{if(e.key!=='Backspace'&&!/^[a-zA-Z0-9!@#$%]$/.test(e.key))e.preventDefault();});
+inp.addEventListener('keydown',e=>{if(e.key!=='Backspace'&&e.key!=='Tab'&&!/^[a-zA-Z0-9!@#$%^&*]$/.test(e.key))e.preventDefault();});
+inp.addEventListener('compositionstart',()=>{inp.blur();setTimeout(()=>inp.focus(),10);});
 
 // Nav color switching
 const nav=document.getElementById('nav');
