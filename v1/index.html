@@ -730,6 +730,74 @@
             .hero-scroll-hint { display: none; }
         }
 
+        /* ─── PASSWORD GATE ─── */
+        #pw-gate {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #111111;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #pw-gate.hidden { display: none; }
+        .pw-inner {
+            display: flex; flex-direction: column; align-items: center; gap: 20px;
+        }
+        .pw-logo {
+            font-family: var(--font-display);
+            font-size: 22px; color: #F7F5F0;
+            margin-bottom: 8px; letter-spacing: -0.01em;
+        }
+        .pw-title {
+            font-family: var(--font-mono);
+            font-size: 11px; color: rgba(247,245,240,0.3);
+            letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .pw-form { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .pw-input {
+            width: 260px; padding: 12px 18px;
+            background: rgba(247,245,240,0.05);
+            border: 1px solid rgba(247,245,240,0.12);
+            border-radius: 4px; outline: none;
+            font-family: var(--font-sans); font-size: 14px;
+            color: #F7F5F0; text-align: center; letter-spacing: 0.1em;
+            transition: border-color 0.18s;
+        }
+        .pw-input::placeholder { color: rgba(247,245,240,0.2); letter-spacing: 0.04em; }
+        .pw-input:focus { border-color: rgba(247,245,240,0.3); }
+        .pw-input.error { border-color: var(--amber-500); animation: pw-shake 0.35s ease; }
+        .pw-btn {
+            width: 260px; padding: 12px;
+            background: var(--amber-500); border: none; border-radius: 4px;
+            font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+            color: #fff; cursor: pointer; letter-spacing: 0.02em;
+            transition: background 0.18s;
+        }
+        .pw-btn:hover { background: var(--amber-400); }
+        .pw-err {
+            font-family: var(--font-mono); font-size: 11px;
+            color: var(--amber-500); opacity: 0;
+            transition: opacity 0.2s; height: 16px; letter-spacing: 0.04em;
+        }
+        .pw-err.show { opacity: 1; }
+        @keyframes pw-shake {
+            0%,100% { transform: translateX(0); }
+            25%      { transform: translateX(-6px); }
+            75%      { transform: translateX(6px); }
+        }
+
+        /* ─── TIMER BAR ─── */
+        #timer-bar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
+            height: 34px;
+            background: rgba(17,17,17,0.92);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; font-family: var(--font-mono); font-size: 11px;
+            color: rgba(247,245,240,0.3); letter-spacing: 0.06em;
+            border-bottom: 1px solid rgba(247,245,240,0.06);
+        }
+        #timer-bar.hidden { display: none; }
+        #timer-bar span { color: rgba(247,245,240,0.65); font-variant-numeric: tabular-nums; }
+        body.has-timer nav { top: 34px; }
+
         /* ─── REDUCED MOTION ─── */
         @media (prefers-reduced-motion: reduce) {
             .fade-up { opacity: 1; transform: none; transition: none; }
@@ -738,6 +806,22 @@
     </style>
 </head>
 <body>
+
+<!-- Timer bar -->
+<div id="timer-bar" class="hidden">세션 만료까지 <span id="timer-val">--:--</span> 남음</div>
+
+<!-- Password gate -->
+<div id="pw-gate">
+    <div class="pw-inner">
+        <div class="pw-logo">Mashup Ventures</div>
+        <div class="pw-title">비밀번호를 입력하세요</div>
+        <form class="pw-form" id="pw-form">
+            <input id="pw-input" class="pw-input" type="password" placeholder="password" autocomplete="current-password" autofocus>
+            <div class="pw-err" id="pw-err">비밀번호가 올바르지 않습니다</div>
+            <button type="submit" class="pw-btn">입장하기</button>
+        </form>
+    </div>
+</div>
 
 <!-- ═══════════════════════════════ NAV ═══════════════════════════════ -->
 <nav id="nav">
@@ -1071,6 +1155,67 @@
 
 
 <script>
+    // ── Password + session ──
+    const PW = 'mashupmashup';
+    const SESSION = 10 * 60 * 1000;
+    const STORE_KEY = 'mashup_v1_auth';
+    const gate = document.getElementById('pw-gate');
+    const pwForm = document.getElementById('pw-form');
+    const pwInput = document.getElementById('pw-input');
+    const pwErr = document.getElementById('pw-err');
+    const timerBar = document.getElementById('timer-bar');
+    const timerVal = document.getElementById('timer-val');
+    let timerInterval = null;
+
+    function grantAccess() {
+        const until = Date.now() + SESSION;
+        localStorage.setItem(STORE_KEY, until.toString());
+        gate.classList.add('hidden');
+        startTimer(until);
+    }
+    function startTimer(until) {
+        timerBar.classList.remove('hidden');
+        document.body.classList.add('has-timer');
+        function tick() {
+            const rem = until - Date.now();
+            if (rem <= 0) {
+                clearInterval(timerInterval);
+                timerBar.classList.add('hidden');
+                document.body.classList.remove('has-timer');
+                localStorage.removeItem(STORE_KEY);
+                gate.classList.remove('hidden');
+                pwInput.value = '';
+                return;
+            }
+            const m = String(Math.floor(rem / 60000)).padStart(2,'0');
+            const s = String(Math.floor((rem % 60000) / 1000)).padStart(2,'0');
+            timerVal.textContent = m + ':' + s;
+        }
+        tick();
+        timerInterval = setInterval(tick, 1000);
+    }
+    const stored = localStorage.getItem(STORE_KEY);
+    if (stored) {
+        const until = parseInt(stored, 10);
+        if (Date.now() < until) { gate.classList.add('hidden'); startTimer(until); }
+        else localStorage.removeItem(STORE_KEY);
+    }
+    pwForm.addEventListener('submit', e => {
+        e.preventDefault();
+        if (pwInput.value === PW) {
+            grantAccess();
+        } else {
+            pwInput.classList.add('error');
+            pwErr.classList.add('show');
+            pwInput.value = '';
+            setTimeout(() => pwInput.classList.remove('error'), 400);
+        }
+    });
+    pwInput.addEventListener('input', () => pwErr.classList.remove('show'));
+    pwInput.addEventListener('keydown', e => {
+        if (e.key !== 'Backspace' && !/^[a-zA-Z0-9!@#$%^&*]$/.test(e.key)) e.preventDefault();
+    });
+
     // ── Nav scroll ──
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
