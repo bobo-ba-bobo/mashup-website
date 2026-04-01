@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mashup Ventures — BI Direction Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --bg:       #0B0B0D;
+      --surface:  #111115;
+      --surface-2:#18181E;
+      --border:   rgba(255,255,255,0.08);
+      --border-bright: rgba(255,255,255,0.14);
+      --text:     #F0F0F0;
+      --text-dim: rgba(240,240,240,0.5);
+      --text-muted: rgba(240,240,240,0.25);
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Space Grotesk', 'Pretendard', sans-serif;
+      --pretendard: 'Pretendard', sans-serif;
+
+      /* direction accent colors */
+      --a-red:    #E83A3A;
+      --b-green:  #2D4A3E;
+      --c-orange: #FF5C00;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── PASSWORD GATE ── */
+    #gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #gate.hidden { display: none; }
+    .gate-inner {
+      width: 100%; max-width: 340px; padding: 0 24px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .gate-label {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 4px;
+    }
+    .gate-title {
+      font-family: var(--sans); font-weight: 700;
+      font-size: 20px; color: var(--text);
+      letter-spacing: -0.02em; margin-bottom: 4px;
+    }
+    .gate-sub {
+      font-family: var(--pretendard); font-size: 13px;
+      color: var(--text-dim); line-height: 1.6;
+    }
+    .gate-input {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border-bright);
+      color: var(--text); font-family: var(--mono);
+      font-size: 14px; padding: 12px 16px;
+      outline: none; transition: border-color 0.2s;
+      letter-spacing: 0.12em;
+    }
+    .gate-input:focus { border-color: rgba(255,255,255,0.35); }
+    .gate-input.error { border-color: #FF4444; animation: shake 0.3s ease; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .gate-btn {
+      width: 100%; background: var(--text);
+      border: none; color: var(--bg);
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 14px; cursor: pointer;
+      transition: opacity 0.2s; font-weight: 600;
+    }
+    .gate-btn:hover { opacity: 0.85; }
+
+    /* ── HEADER ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11,11,13,0.9);
+      backdrop-filter: blur(12px);
+    }
+    .header-left {
+      display: flex; align-items: center; gap: 20px;
+    }
+    .header-logo {
+      font-family: var(--mono); font-size: 12px;
+      font-weight: 500; color: var(--text);
+      letter-spacing: 0.05em;
+    }
+    .header-divider {
+      width: 1px; height: 16px;
+      background: var(--border-bright);
+    }
+    .header-title {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .header-meta {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.08em; color: var(--text-muted);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 80px 40px 64px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-tag {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 20px;
+    }
+    .hero-headline {
+      font-family: var(--sans); font-weight: 700;
+      font-size: clamp(36px, 5vw, 64px);
+      letter-spacing: -0.035em; line-height: 1.05;
+      color: var(--text); margin-bottom: 20px;
+    }
+    .hero-sub {
+      font-family: var(--pretendard); font-size: 16px;
+      line-height: 1.7; color: var(--text-dim);
+      max-width: 560px;
+    }
+    .hero-instructions {
+      margin-top: 40px;
+      display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+    }
+    .instruction-chip {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.06em; color: var(--text-dim);
+    }
+    .chip-num {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--surface-2); border: 1px solid var(--border-bright);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: var(--text);
+    }
+
+    /* ── DIRECTIONS GRID ── */
+    .directions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dir-card {
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: background 0.2s;
+    }
+    .dir-card:last-child { border-right: none; }
+    .dir-card:hover { background: var(--surface); }
+
+    .dir-preview {
+      height: 320px; position: relative; overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .dir-preview iframe {
+      width: 200%; height: 200%;
+      transform: scale(0.5) translate(-50%, -50%);
+      transform-origin: 0 0;
+      pointer-events: none;
+      border: none;
+    }
+    .dir-preview-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: flex-end; padding: 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .dir-card:hover .dir-preview-overlay { opacity: 1; }
+    .preview-open-btn {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: #fff; background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 8px 16px; text-decoration: none;
+      transition: background 0.2s;
+      backdrop-filter: blur(4px);
+    }
+    .preview-open-btn:hover { background: rgba(255,255,255,0.25); }
+
+    /* Direction A preview */
+    .dir-a .dir-preview { background: #0A0A0A; }
+    .dir-b .dir-preview { background: #F5F2ED; }
+    .dir-c .dir-preview { background: #0D1117; }
+
+    /* Placeholder preview content */
+    .preview-placeholder {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: flex-start; justify-content: flex-end;
+      padding: 28px;
+    }
+    .pp-tag {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      margin-bottom: 12px; opacity: 0.5;
+    }
+    .pp-headline {
+      font-weight: 700; line-height: 1.1; letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+    .dir-a .pp-tag { color: #E83A3A; }
+    .dir-a .pp-headline { font-family: 'Georgia', serif; font-size: 36px; color: #F5F5F3; }
+
+    .dir-b .pp-tag { color: #2D4A3E; }
+    .dir-b .pp-headline { font-family: var(--pretendard); font-size: 32px; color: #1A1917; }
+
+    .dir-c .pp-tag { color: #FF5C00; }
+    .dir-c .pp-headline { font-family: var(--sans); font-size: 36px; color: #E6EDF3; }
+
+    .pp-bar {
+      height: 2px; width: 32px;
+    }
+    .dir-a .pp-bar { background: #E83A3A; }
+    .dir-b .pp-bar { background: #2D4A3E; }
+    .dir-c .pp-bar { background: #FF5C00; }
+
+    /* Stats strip on preview for C */
+    .pp-stats {
+      display: flex; gap: 20px;
+    }
+    .pp-stat-num {
+      font-family: var(--sans); font-weight: 700;
+      font-size: 28px; letter-spacing: -0.03em;
+      color: #FF5C00; line-height: 1;
+    }
+    .pp-stat-label {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: 0.1em; color: rgba(230,237,243,0.4);
+      text-transform: uppercase; margin-top: 4px;
+    }
+
+    /* ── CARD META ── */
+    .dir-meta {
+      padding: 28px 28px 24px;
+      display: flex; flex-direction: column; gap: 20px;
+      flex: 1;
+    }
+    .dir-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 12px;
+    }
+    .dir-code {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .dir-badge {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 4px 8px; border: 1px solid;
+    }
+    .dir-a .dir-badge { color: var(--a-red); border-color: rgba(232,58,58,0.4); background: rgba(232,58,58,0.08); }
+    .dir-b .dir-badge { color: var(--b-green); border-color: rgba(45,74,62,0.5); background: rgba(45,74,62,0.12); }
+    .dir-c .dir-badge { color: var(--c-orange); border-color: rgba(255,92,0,0.4); background: rgba(255,92,0,0.08); }
+
+    .dir-name {
+      font-family: var(--sans); font-weight: 700;
+      font-size: 22px; letter-spacing: -0.02em;
+      color: var(--text); line-height: 1.2;
+    }
+    .dir-question {
+      font-family: var(--pretendard); font-size: 13px;
+      color: var(--text-dim); line-height: 1.6;
+      font-style: italic;
+    }
+    .dir-message-block {
+      background: var(--surface-2); border: 1px solid var(--border);
+      padding: 16px 18px;
+    }
+    .dir-message-label {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 8px;
+    }
+    .dir-message-ko {
+      font-family: var(--pretendard); font-size: 15px;
+      font-weight: 600; color: var(--text);
+      line-height: 1.5; margin-bottom: 4px;
+    }
+    .dir-message-en {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.04em; color: var(--text-dim);
+    }
+
+    /* ── TOKENS ROW ── */
+    .dir-tokens {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .token-block {}
+    .token-label {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 6px;
+    }
+    .token-val {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.04em; color: var(--text-dim);
+    }
+    .color-swatch {
+      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    }
+    .swatch {
+      width: 16px; height: 16px; border-radius: 2px;
+      border: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+
+    /* ── KEYWORDS ── */
+    .dir-keywords {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .keyword-tag {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.06em; color: var(--text-muted);
+      background: var(--surface-2); border: 1px solid var(--border);
+      padding: 4px 10px;
+    }
+
+    /* ── OPEN BUTTON ── */
+    .dir-open-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; border: 1px solid var(--border-bright);
+      text-decoration: none; font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim); transition: all 0.2s; margin-top: auto;
+    }
+    .dir-open-btn:hover { color: var(--text); border-color: var(--text-dim); }
+    .dir-a .dir-open-btn:hover { border-color: var(--a-red); color: var(--a-red); }
+    .dir-b .dir-open-btn:hover { border-color: var(--b-green); color: #3d6654; }
+    .dir-c .dir-open-btn:hover { border-color: var(--c-orange); color: var(--c-orange); }
+
+    /* ── COMPARISON TABLE ── */
+    .compare-section {
+      padding: 64px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-label {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 32px;
+    }
+    table {
+      width: 100%; border-collapse: collapse;
+    }
+    thead th {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-muted); text-align: left;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    thead th:first-child { width: 160px; }
+    tbody td {
+      font-family: var(--pretendard); font-size: 13px;
+      color: var(--text-dim); padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top; line-height: 1.5;
+    }
+    tbody td:first-child {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    tbody tr:hover td { background: var(--surface); }
+
+    .td-a { color: var(--text); }
+    .td-accent-a { color: var(--a-red); font-weight: 600; }
+    .td-accent-b { color: #3d6654; font-weight: 600; }
+    .td-accent-c { color: var(--c-orange); font-weight: 600; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-note {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.08em; color: var(--text-muted);
+    }
+    .footer-links {
+      display: flex; gap: 16px;
+    }
+    .footer-link {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-muted); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-link:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="gate-inner">
+    <div>
+      <div class="gate-label">Mashup Ventures — Internal</div>
+      <div class="gate-title">BI Direction Review</div>
+    </div>
+    <div class="gate-sub">
+      3가지 BI 방향성 프로토타입 비교 페이지입니다.<br/>
+      팀 내부 검토용 — 비밀번호를 입력해주세요.
+    </div>
+    <div>
+      <div class="gate-label">Access Code</div>
+      <input type="password" id="gate-input" class="gate-input" placeholder="••••••••••••" />
+    </div>
+    <button class="gate-btn" onclick="checkGate()">Enter →</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="header-logo">Mashup Ventures</div>
+    <div class="header-divider"></div>
+    <div class="header-title">BI Direction Review — Phase 2</div>
+  </div>
+  <div class="header-meta">2026.04 · Internal</div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Phase 2 — Brand Identity Exploration</div>
+  <h1 class="hero-headline">3가지 방향,<br/>하나를 선택하세요.</h1>
+  <p class="hero-sub">
+    매쉬업벤처스 웹사이트 리뉴얼의 BI 후보 3개입니다.
+    각 방향은 폰트·색상·메시지·레이아웃 철학이 완전히 다릅니다.
+    팀 피드백을 기반으로 하나를 선택 후 Phase 3으로 진행합니다.
+  </p>
+  <div class="hero-instructions">
+    <div class="instruction-chip">
+      <div class="chip-num">1</div>
+      <span>각 방향 카드에서 프로토타입 열기</span>
+    </div>
+    <div class="instruction-chip">
+      <div class="chip-num">2</div>
+      <span>비밀번호: <code style="font-family:var(--mono);color:var(--text)">mashupmashup</code></span>
+    </div>
+    <div class="instruction-chip">
+      <div class="chip-num">3</div>
+      <span>팀 피드백 후 방향 확정 → Phase 3</span>
+    </div>
+  </div>
+</div>
+
+<!-- DIRECTION CARDS -->
+<div class="directions">
+
+  <!-- DIRECTION A -->
+  <div class="dir-card dir-a">
+    <div class="dir-preview">
+      <!-- Visual placeholder -->
+      <div class="preview-placeholder" style="background:#0A0A0A;">
+        <div class="pp-tag" style="color:#E83A3A;">Direction A — First Believers</div>
+        <div class="pp-bar" style="margin-bottom:16px;"></div>
+        <div class="pp-headline" style="font-family:'Georgia',serif;font-size:38px;color:#F5F5F3;letter-spacing:-0.02em;">짓는 사람을<br/>위한 믿음.</div>
+      </div>
+      <div class="dir-preview-overlay">
+        <a href="/v2" target="_blank" class="preview-open-btn">Full Preview ↗</a>
+      </div>
+    </div>
+    <div class="dir-meta">
+      <div class="dir-header">
+        <div>
+          <div class="dir-code">Direction A</div>
+          <div class="dir-name">First Believers</div>
+        </div>
+        <div class="dir-badge">에디토리얼</div>
+      </div>
+      <div class="dir-question">우리는 어떤 <em>신념</em>으로 투자하는가?</div>
+      <div class="dir-message-block">
+        <div class="dir-message-label">Core Message</div>
+        <div class="dir-message-ko">"짓는 사람을 위한, 가장 이른 믿음."</div>
+        <div class="dir-message-en">"The earliest believers, for those who build."</div>
+      </div>
+      <div class="dir-tokens">
+        <div class="token-block">
+          <div class="token-label">Display Font</div>
+          <div class="token-val">Libre Baskerville</div>
+        </div>
+        <div class="token-block">
+          <div class="token-label">Layout</div>
+          <div class="token-val">흑/백 교차 섹션</div>
+        </div>
+        <div class="token-block">
+          <div class="token-label">Colors</div>
+          <div class="color-swatch">
+            <div class="swatch" style="background:#0A0A0A;" title="#0A0A0A"></div>
+            <div class="swatch" style="background:#F5F5F3;" title="#F5F5F3"></div>
+            <div class="swatch" style="background:#E83A3A;" title="#E83A3A"></div>
+          </div>
+        </div>
+        <div class="token-block">
+          <div class="token-label">Mood</div>
+          <div class="token-val">FuturePlay 에디토리얼</div>
+        </div>
+      </div>
+      <div class="dir-keywords">
+        <span class="keyword-tag">Conviction</span>
+        <span class="keyword-tag">Architectural</span>
+        <span class="keyword-tag">Bold</span>
+        <span class="keyword-tag">Editorial</span>
+        <span class="keyword-tag">Timeless</span>
+      </div>
+      <a href="/v2" target="_blank" class="dir-open-btn">
+        <span>v2 프로토타입 열기</span>
+        <span>↗</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- DIRECTION B -->
+  <div class="dir-card dir-b">
+    <div class="dir-preview">
+      <div class="preview-placeholder" style="background:#F5F2ED;">
+        <div class="pp-tag" style="color:#2D4A3E;">Direction B — Depth Partners</div>
+        <div class="pp-bar" style="margin-bottom:16px;"></div>
+        <div class="pp-headline" style="font-family:var(--pretendard);font-size:36px;color:#1A1917;font-weight:700;">이른 곳에,<br/>깊게.</div>
+      </div>
+      <div class="dir-preview-overlay">
+        <a href="/v3" target="_blank" class="preview-open-btn">Full Preview ↗</a>
+      </div>
+    </div>
+    <div class="dir-meta">
+      <div class="dir-header">
+        <div>
+          <div class="dir-code">Direction B</div>
+          <div class="dir-name">Depth Partners</div>
+        </div>
+        <div class="dir-badge">한국 에디토리얼</div>
+      </div>
+      <div class="dir-question">우리는 창업자와 어떤 <em>관계</em>를 맺는가?</div>
+      <div class="dir-message-block">
+        <div class="dir-message-label">Core Message</div>
+        <div class="dir-message-ko">"이른 곳에, 깊게."</div>
+        <div class="dir-message-en">"Early. Deep. Together."</div>
+      </div>
+      <div class="dir-tokens">
+        <div class="token-block">
+          <div class="token-label">Display Font</div>
+          <div class="token-val">Nanum Myeongjo</div>
+        </div>
+        <div class="token-block">
+          <div class="token-label">Layout</div>
+          <div class="token-val">1px 보더 + 여백</div>
+        </div>
+        <div class="token-block">
+          <div class="token-label">Colors</div>
+          <div class="color-swatch">
+            <div class="swatch" style="background:#F5F2ED;" title="#F5F2ED"></div>
+            <div class="swatch" style="background:#1A1917;" title="#1A1917"></div>
+            <div class="swatch" style="background:#2D4A3E;" title="#2D4A3E"></div>
+          </div>
+        </div>
+        <div class="token-block">
+          <div class="token-label">Mood</div>
+          <div class="token-val">Monocle 무드</div>
+        </div>
+      </div>
+      <div class="dir-keywords">
+        <span class="keyword-tag">Depth</span>
+        <span class="keyword-tag">Warmth</span>
+        <span class="keyword-tag">Korean</span>
+        <span class="keyword-tag">Restrained</span>
+        <span class="keyword-tag">Trusted</span>
+      </div>
+      <a href="/v3" target="_blank" class="dir-open-btn">
+        <span>v3 프로토타입 열기</span>
+        <span>↗</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- DIRECTION C -->
+  <div class="dir-card dir-c">
+    <div class="dir-preview">
+      <div class="preview-placeholder" style="background:#0D1117;">
+        <div class="pp-tag" style="color:#FF5C00;">Direction C — Track Record</div>
+        <div class="pp-stats" style="margin-bottom:20px;">
+          <div>
+            <div class="pp-stat-num">206</div>
+            <div class="pp-stat-label">Companies</div>
+          </div>
+          <div>
+            <div class="pp-stat-num">11.3조</div>
+            <div class="pp-stat-label">Value</div>
+          </div>
+          <div>
+            <div class="pp-stat-num">12</div>
+            <div class="pp-stat-label">Exits</div>
+          </div>
+        </div>
+        <div class="pp-bar"></div>
+      </div>
+      <div class="dir-preview-overlay">
+        <a href="/v4" target="_blank" class="preview-open-btn">Full Preview ↗</a>
+      </div>
+    </div>
+    <div class="dir-meta">
+      <div class="dir-header">
+        <div>
+          <div class="dir-code">Direction C</div>
+          <div class="dir-name">Track Record</div>
+        </div>
+        <div class="dir-badge">데이터 테크</div>
+      </div>
+      <div class="dir-question">우리는 어떤 <em>결과</em>를 만들어왔는가?</div>
+      <div class="dir-message-block">
+        <div class="dir-message-label">Core Message</div>
+        <div class="dir-message-ko">"206번의 첫 번째. 다음은 당신입니다."</div>
+        <div class="dir-message-en">"206 first bets. Yours could be next."</div>
+      </div>
+      <div class="dir-tokens">
+        <div class="token-block">
+          <div class="token-label">Display Font</div>
+          <div class="token-val">Space Grotesk</div>
+        </div>
+        <div class="token-block">
+          <div class="token-label">Layout</div>
+          <div class="token-val">데이터 그리드 + 마퀴</div>
+        </div>
+        <div class="token-block">
+          <div class="token-label">Colors</div>
+          <div class="color-swatch">
+            <div class="swatch" style="background:#0D1117;" title="#0D1117"></div>
+            <div class="swatch" style="background:#161B22;" title="#161B22"></div>
+            <div class="swatch" style="background:#FF5C00;" title="#FF5C00"></div>
+          </div>
+        </div>
+        <div class="token-block">
+          <div class="token-label">Mood</div>
+          <div class="token-val">Linear / Vercel</div>
+        </div>
+      </div>
+      <div class="dir-keywords">
+        <span class="keyword-tag">Precision</span>
+        <span class="keyword-tag">Track Record</span>
+        <span class="keyword-tag">Confident</span>
+        <span class="keyword-tag">Data</span>
+        <span class="keyword-tag">Modern</span>
+      </div>
+      <a href="/v4" target="_blank" class="dir-open-btn">
+        <span>v4 프로토타입 열기</span>
+        <span>↗</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- COMPARISON TABLE -->
+<div class="compare-section">
+  <div class="compare-label">Quick Comparison</div>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>A. First Believers</th>
+        <th>B. Depth Partners</th>
+        <th>C. Track Record</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>핵심 가치</td>
+        <td class="td-accent-a">확신 / Conviction</td>
+        <td class="td-accent-b">깊이 / Depth</td>
+        <td class="td-accent-c">기록 / Track Record</td>
+      </tr>
+      <tr>
+        <td>타겟 감성</td>
+        <td class="td-a">에디토리얼 권위</td>
+        <td class="td-a">따뜻한 신뢰</td>
+        <td class="td-a">데이터 신뢰</td>
+      </tr>
+      <tr>
+        <td>Display 폰트</td>
+        <td class="td-a">Libre Baskerville (Serif)</td>
+        <td class="td-a">Nanum Myeongjo (KO Serif)</td>
+        <td class="td-a">Space Grotesk (Sans)</td>
+      </tr>
+      <tr>
+        <td>배경 전략</td>
+        <td class="td-a">흑/백 섹션 교차</td>
+        <td class="td-a">크림 단색 (#F5F2ED)</td>
+        <td class="td-a">다크 단색 (#0D1117)</td>
+      </tr>
+      <tr>
+        <td>액센트 컬러</td>
+        <td><span style="color:var(--a-red);font-family:var(--mono);font-size:12px;">■ #E83A3A Bold Red</span></td>
+        <td><span style="color:#3d6654;font-family:var(--mono);font-size:12px;">■ #2D4A3E Forest Green</span></td>
+        <td><span style="color:var(--c-orange);font-family:var(--mono);font-size:12px;">■ #FF5C00 Electric Orange</span></td>
+      </tr>
+      <tr>
+        <td>레이아웃</td>
+        <td class="td-a">풀뷰포트 섹션 드라마</td>
+        <td class="td-a">1px 보더 + 여백 중심</td>
+        <td class="td-a">데이터 그리드 + 마퀴</td>
+      </tr>
+      <tr>
+        <td>레퍼런스</td>
+        <td class="td-a">futureplay.co, itsdpark.com</td>
+        <td class="td-a">Monocle, sopoong.net</td>
+        <td class="td-a">linear.app, vercel.com</td>
+      </tr>
+      <tr>
+        <td>가장 강한 포인트</td>
+        <td class="td-a">임팩트 있는 첫인상, 스크롤 경험</td>
+        <td class="td-a">한국적 감성, 네트워크 강조</td>
+        <td class="td-a">숫자/실적, 글로벌 테크 느낌</td>
+      </tr>
+      <tr>
+        <td>프로토타입 URL</td>
+        <td><a href="/v2" target="_blank" style="font-family:var(--mono);font-size:12px;color:var(--a-red);text-decoration:none;">/v2 ↗</a></td>
+        <td><a href="/v3" target="_blank" style="font-family:var(--mono);font-size:12px;color:#3d6654;text-decoration:none;">/v3 ↗</a></td>
+        <td><a href="/v4" target="_blank" style="font-family:var(--mono);font-size:12px;color:var(--c-orange);text-decoration:none;">/v4 ↗</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-note">Mashup Ventures Website Renewal — Phase 2 · 2026.04 · Internal Preview</div>
+  <div class="footer-links">
+    <a href="/v2" target="_blank" class="footer-link">v2 →</a>
+    <a href="/v3" target="_blank" class="footer-link">v3 →</a>
+    <a href="/v4" target="_blank" class="footer-link">v4 →</a>
+    <a href="/" target="_blank" class="footer-link">Original →</a>
+  </div>
+</footer>
+
+<script>
+  const SESSION_KEY = 'mv_compare';
+  const SESSION_DURATION = 10 * 60 * 1000;
+  const PASSWORD = 'mashupmashup';
+
+  function checkSession() {
+    const stored = localStorage.getItem(SESSION_KEY);
+    if (!stored) return false;
+    return (Date.now() - JSON.parse(stored).timestamp) < SESSION_DURATION;
+  }
+
+  function checkGate() {
+    const input = document.getElementById('gate-input');
+    if (input.value === PASSWORD) {
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ timestamp: Date.now() }));
+      document.getElementById('gate').classList.add('hidden');
+    } else {
+      input.classList.add('error');
+      input.value = '';
+      setTimeout(() => input.classList.remove('error'), 400);
+    }
+  }
+
+  document.getElementById('gate-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkGate();
+  });
+
+  if (checkSession()) {
+    document.getElementById('gate').classList.add('hidden');
+  }
+</script>
+</body>
+</html>
