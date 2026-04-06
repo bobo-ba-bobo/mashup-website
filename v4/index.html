@@ -1016,12 +1016,12 @@
   function checkSession() {
     const stored = localStorage.getItem(SESSION_KEY);
     if (!stored) return false;
-    const { timestamp } = JSON.parse(stored);
-    return (Date.now() - timestamp) < SESSION_DURATION;
+    const { t } = JSON.parse(stored);
+    return (Date.now() - t) < SESSION_DURATION;
   }
 
   function startSession() {
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ timestamp: Date.now() }));
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ t: Date.now() }));
   }
 
   function checkPassword() {
@@ -1062,7 +1062,7 @@
     const bar = document.getElementById('session-bar');
 
     function update() {
-      const elapsed = Date.now() - stored.timestamp;
+      const elapsed = Date.now() - stored.t;
       const remaining = Math.max(0, SESSION_DURATION - elapsed);
       const m = Math.floor(remaining / 60000);
       const s = Math.floor((remaining % 60000) / 1000);
